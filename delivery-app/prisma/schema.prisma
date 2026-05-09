@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Delivery {
+  id              String          @id
+  orderId         String          @unique
+  delivyUserId    String?
+  status          StatusDelivery  @default(ASSIGNED)
+  pickupLocation  String
+  deliveryAddress String
+  createdAt       DateTime        @default(now())
+  ubications      Ubication[]
+  stateHistories  STATE_HISTORY[]
+}
+
+model Repartido {
+  id          String @id
+  name        String
+  phone       String
+  vehicleType String
+}
+
+model STATE_HISTORY {
+  id         String         @id @default(uuid())
+  deliveryId String
+  delivery   Delivery       @relation(fields: [deliveryId], references: [id])
+  status     StatusDelivery
+  timestamp  DateTime       @default(now())
+}
+
+model Ubication {
+  id         String   @id @default(uuid())
+  deliveryId String
+  delivery   Delivery @relation(fields: [deliveryId], references: [id])
+  latitude   Float
+  longitude  Float
+  timestamp  DateTime @default(now())
+}
+
+enum StatusDelivery {
+  ASSIGNED
+  ON_THE_WAY
+  DELIVERED
+}
