@@ -42,3 +42,9 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+# Prisma Client (can be regenerated with `npx prisma generate`)
+/generated

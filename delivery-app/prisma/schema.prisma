@@ -24,7 +24,7 @@ model Delivery {
   stateHistories  STATE_HISTORY[]
 }
 
-model Repartido {
+model Repartidor {
   id          String @id
   name        String
   phone       String
