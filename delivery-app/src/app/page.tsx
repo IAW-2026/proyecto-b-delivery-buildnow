@@ -1,6 +1,14 @@
 import Link from 'next/link'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { userId } = await auth()
+
+  if (userId) {
+    redirect('/dashboard')
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-4xl px-4 py-20 text-center">
