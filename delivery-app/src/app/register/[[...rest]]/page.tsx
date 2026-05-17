@@ -101,10 +101,10 @@ export default function RegisterPage() {
           </div>
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-
+          {/* Boton no se esta habilitado a menos que todos los campos esten completos */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !form.firstName || !form.lastName || !form.email || !form.password}
             className="w-full rounded-2xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-300"
           >
             {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
