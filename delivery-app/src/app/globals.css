@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  /* Definimos los colores de ConstruHub para consistencia */
+  --ch-orange-primary: #ea580c;
+  --ch-orange-light: #fff7ed;
+  --ch-brown-dark: #451a03;
+}
+
+body {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  /* Fuente Sans-Serif limpia como la de la imagen */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Estilo para que el input se vea exacto al de la captura */
+input::placeholder {
+  font-weight: 500;
+  color: #1f2937; /* Gray 800 */
+}
