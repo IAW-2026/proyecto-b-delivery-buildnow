@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { sampleOrders } from "../../../../lib/mockData";
+import { PrismaClient } from '@prisma/client';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const order = sampleOrders.find((item) => item.id === params.id);
+const prisma = new PrismaClient();
+
+export async function GET(request: Request,{ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const order = await prisma.delivery.findUnique({
+    where: { id },
+  });
 
   if (!order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });

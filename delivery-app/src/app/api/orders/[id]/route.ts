@@ -3,11 +3,12 @@ import { sampleOrders } from "../../../lib/mockData";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const payload = await request.json();
   const { status } = payload;
-  const order = sampleOrders.find((item) => item.id === params.id);
+  const { id } = await params;
+  const order = sampleOrders.find((item) => item.id === id);
 
   if (!order) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
