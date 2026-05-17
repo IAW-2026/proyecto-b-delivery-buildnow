@@ -48,3 +48,5 @@ next-env.d.ts
 
 # Prisma Client (can be regenerated with `npx prisma generate`)
 /generated
+.vercel
+.env*.local
