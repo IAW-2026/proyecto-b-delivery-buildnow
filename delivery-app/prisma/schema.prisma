@@ -4,8 +4,7 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -26,10 +25,14 @@ model Delivery {
 }
 
 model Repartidor {
-  id          String @id
-  name        String
-  phone       String
-  vehicleType String
+  id           String   @id @default(uuid())
+  clerkUserId  String   @unique
+  name         String
+  email        String   @unique
+  phone        String
+  vehicleType  String
+  role         Role     @default(DELIVERY)
+  createdAt    DateTime @default(now())
 }
 
 model STATE_HISTORY {
@@ -38,6 +41,11 @@ model STATE_HISTORY {
   delivery   Delivery       @relation(fields: [deliveryId], references: [id])
   status     StatusDelivery
   timestamp  DateTime       @default(now())
+}
+
+enum Role {
+  ADMIN
+  DELIVERY
 }
 
 model Ubication {
