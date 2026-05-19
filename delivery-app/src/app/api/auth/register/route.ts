@@ -44,11 +44,12 @@ export async function POST(request: Request) {
         name: `${firstName} ${lastName}`,
         email,
         phone: phone ?? '',
-        vehicleType: 'Moto',
+        vehicleType: 'MOTORBIKE',
       },
     })
 
     return NextResponse.json({ message: 'Usuario creado correctamente.' }, { status: 201 })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any  
   } catch (error: any) {
     // Registrar el error completo en consola para tener visibilidad
     console.error("Error al crear usuario en Clerk:", error.errors || error)
