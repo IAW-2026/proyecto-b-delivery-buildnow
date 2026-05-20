@@ -5,24 +5,19 @@ import { MapPin, Package } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import DetalleModal from './components/detalleModal';
 import { Order } from '../../types/index';
-
-type TabType = 'closest' | 'highest' | 'heavy';
+import { useSortedOrders } from '../../hooks/useSortedOrders';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('closest');
-  const [isOnline, setIsOnline] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOnline, setIsOnline] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
+  
   const { user } = useUser();
 
-  const tabs: Array<{ id: TabType; label: string }> = [
-    { id: 'closest', label: 'Más cercanos' },
-    { id: 'highest', label: 'Mayor pago' },
-    { id: 'heavy', label: 'Cargas pesadas' },
-  ];
+  const { orderdOrders, activeTab, setActiveTab, tabs } = useSortedOrders(orders);
 
-  // Llamada a tu API GET /api/orders?status=READY para obtener los pedidos disponibles
-  const [orders, setOrders] = useState<Order[]>([]);
+
   useEffect(() => {
     async function fetchOrders() {
       setLoading(true);
@@ -65,7 +60,8 @@ export default function DashboardPage() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              // Si el tab actual es el clickeado, lo desactivamos (pasando un string vacío), sino lo activamos
+              onClick={() => setActiveTab(activeTab === tab.id ? '' : tab.id)}
               className={`rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'border-b-2 border-orange-500 text-orange-600'
@@ -89,56 +85,80 @@ export default function DashboardPage() {
           <p className="text-center text-gray-500 py-10">No hay pedidos disponibles en este momento.</p>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => (
+          {orderdOrders.map((order) => (
             <div
               key={order.id}
               className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col gap-4 p-4 md:flex-row">
-                <div className="shrink-0">
-                  <div className="w-full max-w-40 h-32 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-gray-300">
-                    <div className="text-center">
-                      <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-1" />
-                      <p className="text-xs text-gray-500">Mapa</p>
+              {/* Contenedor principal: En móviles va en vertical, en md se alinea en fila horizontal */}
+              <div className="flex flex-col justify-between gap-4 p-4 md:flex-row">
+                
+                {/* LADO IZQUIERDO: Mapa + Datos del pedido */}
+                <div className="flex flex-col gap-4 sm:flex-row flex-1">
+                  {/* Contenedor del Mapa */}
+                  <div className="shrink-0 mx-auto sm:mx-0">
+                    <div className="w-40 h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
+                      {order.storeAddress ? (
+                        <iframe
+                          title={`Mapa para ${order.storeAddress}`}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(order.storeAddress)}&output=embed`}
+                        ></iframe>
+                      ) : (
+                        <div className="text-center">
+                          <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                          <p className="text-xs text-gray-500">Mapa</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Información del pedido */}
+                  <div className="flex items-start gap-2 flex-1">
+                    <Package className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-lg leading-tight">{order.storeName}</h3>
+                      <p className="text-sm text-gray-600 mt-2">
+                        <strong className="text-gray-800">Recogida:</strong> {order.storeAddress}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        <strong className="text-gray-800">Entrega:</strong> {order.deliveryAddress}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        <strong className="text-gray-800">Carga:</strong> {order.totalItems} bultos (aprox. {order.totalWeight}kg)
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex-1">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="flex items-start gap-2">
-                      <Package className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                      <div>
-                        <h3 className="font-bold text-gray-900">{order.storeName}</h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          <strong>Recogida:</strong> {order.storeAddress}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <strong>Entrega:</strong> {order.deliveryAddress}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-orange-500">${}</p>
-                    </div>
+                {/* LADO DERECHO: Precio arriba y Botón abajo (solo en pantallas md) */}
+                <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-100 md:border-0 md:pt-0 md:flex-col md:justify-between md:items-end md:shrink-0">
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-orange-500">$PAGO</p>
                   </div>
-
-                  <p className="text-sm text-gray-600 mb-4">
-                    <strong>Carga:</strong> {order.totalItems} bultos (aprox. {order.totalWeight}kg)
-                  </p>
-
+                  
                   <button 
-                  onClick={() => setIsOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                    onClick={() => setSelectedOrder(order)}
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base mt-auto"
+                  >
                     Ver Detalles
                   </button>
-
-                  {isOpen && <DetalleModal onClose={() => setIsOpen(false)} />}
                 </div>
+
               </div>
             </div>
           ))}
         </div>
+        )}
+
+        {selectedOrder && (
+          <DetalleModal 
+            order={selectedOrder} 
+            onClose={() => setSelectedOrder(null)} 
+          />
         )}
       </main>
     </div>
