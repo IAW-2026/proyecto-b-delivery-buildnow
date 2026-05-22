@@ -6,34 +6,72 @@ import { SignOutButton, useUser } from '@clerk/nextjs';
 import DetalleModal from './components/detalleModal';
 import { Order } from '../../types/index';
 import { useSortedOrders } from '../../hooks/useSortedOrders';
+import { VehicleType } from '@prisma/client';
+
+type OrderWithQuote =
+  Order & {
+    quote?: {
+      distanceKm: number;
+      durationMinutes: number;
+      price: number;
+    };
+  };
 
 export default function DashboardPage() {
   // const [isOnline, setIsOnline] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<Order[]>([]);
-  
-  const { user } = useUser();
+  const [selectedOrder,setSelectedOrder] = useState<Order | null>(null);
+  const [loading,setLoading] = useState(true);
+  const [orders,setOrders] = useState<OrderWithQuote[]>([]);
+  const [selectedVehicle,setSelectedVehicle] = useState<VehicleType>(VehicleType.CAR);
 
+  const { user } = useUser();
   const { orderdOrders, activeTab, setActiveTab, tabs } = useSortedOrders(orders);
 
-
   useEffect(() => {
-    async function fetchOrders() {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/orders?status=READY');
-        if (!response.ok) throw new Error('Error al obtener pedidos disponibles');
-        const data: Order[] = await response.json();
-        setOrders(data);
-      } catch (error) {
-        console.error("Error al consultar pedidos disponibles:", error);
-      } finally {
-        setLoading(false);
-      }
+
+  async function fetchOrdersAndQuotes() {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/orders?status=READY');
+      const data: Order[] = await response.json();
+      const enrichedOrders = await Promise.all(
+        data.map(async (order) => {
+            try {
+              const quoteResponse = await fetch('/api/delivery/quote',
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type':
+                      'application/json'
+                  },
+                  body: JSON.stringify({
+                    storeAddress:order.storeAddress,
+                    deliveryAddress:order.deliveryAddress,
+                    vehicle:selectedVehicle
+                  })
+                }
+              );
+
+              if (!quoteResponse.ok) {
+                return order;
+              }
+
+              const quote = await quoteResponse.json();
+              return {...order, quote};
+
+            } catch {
+              return order;
+            }
+          })
+        );
+      setOrders(enrichedOrders);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    fetchOrders();
-  }, []);
+  } fetchOrdersAndQuotes(); 
+  }, [selectedVehicle]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -136,9 +174,11 @@ export default function DashboardPage() {
 
                 {/* LADO DERECHO: Precio arriba y Botón abajo (solo en pantallas md) */}
                 <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-100 md:border-0 md:pt-0 md:flex-col md:justify-between md:items-end md:shrink-0">
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-orange-500">$PAGO</p>
-                  </div>
+                    {order.quote && (
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-orange-500">${order.quote.price}</p>
+                    </div>
+                    )}
                   
                   <button 
                     onClick={() => setSelectedOrder(order)}

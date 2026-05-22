@@ -8,7 +8,7 @@ export const SORT_TABS = [
     { id: 'heavy', label: 'Cargas pesadas', sortby: 'weight' },
   ];
 
-export function useSortedOrders(initialOrders: Order[]) {
+export function useSortedOrders<T extends Order>(initialOrders: T[]) {
     const [activeTab, setActiveTab] = useState('recent');
 
     const orderdOrders = useMemo(() => {
