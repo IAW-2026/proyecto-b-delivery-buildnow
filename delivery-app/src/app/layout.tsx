@@ -1,12 +1,10 @@
-
-import type { PropsWithChildren } from 'react'
-import { ClerkProvider } from '@clerk/nextjs'
-import './globals.css'
+import type { PropsWithChildren } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
+import "./globals.css";
 import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/app/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
@@ -15,5 +13,5 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
-  )
+  );
 }
