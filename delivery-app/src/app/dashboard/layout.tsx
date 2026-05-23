@@ -1,7 +1,12 @@
-import type { PropsWithChildren } from 'react'
-import { requireDeliveryUser } from '../lib/auth'
+import type { ReactNode } from "react";
+import { DashboardHeader } from "./components/dashboard-header";
 
-export default async function DashboardLayout({ children }: PropsWithChildren) {
-  await requireDeliveryUser()
-  return <>{children}</>
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
+      <DashboardHeader />
+
+      <main className="flex-1 overflow-hidden">{children}</main>
+    </div>
+  );
 }
