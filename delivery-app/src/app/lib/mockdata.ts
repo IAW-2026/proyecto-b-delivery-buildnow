@@ -3,7 +3,7 @@
 // =====================================================================
 export const mockAvailableOrders = [
   {
-    id: "order_10123",
+    id: "order_10122",
     storeName: "Corralón Don Bosco",
     storeAddress: "Av. Alem 1253, Bahía Blanca, Buenos Aires, Argentina",
     deliveryAddress: "San Martín 450, Bahía Blanca, Buenos Aires, Argentina",
@@ -18,7 +18,7 @@ export const mockAvailableOrders = [
     deliveryAddress: "O'Higgins 340, Bahía Blanca, Buenos Aires, Argentina",
     totalWeight: 2.0,
     totalItems: 4,
-    createdAt: new Date(Date.now() - 15 * 60000).toISOString() // Hace 15 minutos
+    createdAt: new Date(Date.now() - 5 * 60000).toISOString() // Hace 15 minutos
   },
   {
     id: "order_10125",
@@ -27,7 +27,7 @@ export const mockAvailableOrders = [
     deliveryAddress: "Zapiola 800, Bahía Blanca, Buenos Aires, Argentina",
     totalWeight: 0.8,
     totalItems: 1,
-    createdAt: new Date(Date.now() - 5 * 60000).toISOString() // Hace 5 minutos
+    createdAt: new Date(Date.now() - 15 * 60000).toISOString() // Hace 5 minutos
   }
 ];
 

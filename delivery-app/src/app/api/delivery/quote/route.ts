@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-
 import { VehicleType } from '@prisma/client';
-
 import { geocodeAddress } from '../../../lib/delivery/geocode';
-
 import { calculateRoute } from '../../../lib/delivery/routing';
-
 import { calculateDeliveryFee } from '../../../lib/delivery/pricing';
 
 export async function POST(request: Request) {
@@ -29,7 +25,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       distanceKm: route.distanceKm,
       durationMinutes: route.durationMinutes,
-      price
+      price,
+      latitude: pickup.lat,
+      longitude: pickup.lon
     });
 
   } catch (error) {

@@ -6,6 +6,8 @@ export interface RouteResult {
   distanceKm: number;
   durationMinutes: number;
   vehicleUsed: VehicleType;
+  latitude?: number;
+  longitude?: number;
 }
 
 export async function calculateRoute(
@@ -57,6 +59,8 @@ export async function calculateRoute(
     durationMinutes: Number(
       (summary.duration / 60).toFixed(1)
     ),
+    latitude: endLat,
+    longitude: endLon,
     vehicleUsed: vehicle
   };
 }
