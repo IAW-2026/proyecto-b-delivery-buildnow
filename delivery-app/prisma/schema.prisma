@@ -14,12 +14,16 @@ datasource db {
 
 model Delivery {
   id              String          @id
-  orderId         String          @unique
-  delivyUserId    String?
   status          StatusDelivery  @default(ASSIGNED)
+  delivyUserId    String?
+  orderId         String          @unique
+  storeName        String
   pickupLocation  String
   deliveryAddress String
+  totalItems       Int
+  totalWeight      Float
   createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   ubications      Ubication[]
   stateHistories  STATE_HISTORY[]
 }

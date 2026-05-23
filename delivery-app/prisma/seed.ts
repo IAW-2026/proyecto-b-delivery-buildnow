@@ -43,18 +43,20 @@ async function main() {
       id: 'dlv_001',
       orderId: 'order_10123',
       delivyUserId: rep1.id,
-      status: 'ON_THE_WAY',
-      pickupLocation: 'Av. Alem 1253, Bahía Blanca',
+      status: 'DELIVERED',
+      storeName: 'Corralón BuildNOW',
+      pickupLocation : 'Av. Alem 1253, Bahía Blanca',
       deliveryAddress: 'San Martín 450, Bahía Blanca',
+      totalItems: 5,
+      totalWeight: 12.5,
+      stateHistories: {
+        create: [
+          { status: 'ASSIGNED', timestamp: new Date(Date.now() - 60 * 60000) },
+          { status: 'ON_THE_WAY', timestamp: new Date(Date.now() - 30 * 60000) },
+          { status: 'DELIVERED', timestamp: new Date() },
+        ],
+      }
     },
-  });
-
-  // Historial de Estados
-  await prisma.sTATE_HISTORY.createMany({
-    data: [
-      { deliveryId: dlv1.id, status: 'ASSIGNED', timestamp: new Date(Date.now() - 60 * 60000) },
-      { deliveryId: dlv1.id, status: 'ON_THE_WAY', timestamp: new Date() },
-    ],
   });
 
   // Simulación de una ruta en curso para el mapa del Dashboard
