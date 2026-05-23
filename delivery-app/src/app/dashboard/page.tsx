@@ -4,18 +4,13 @@ import { useState, useEffect } from 'react';
 import { MapPin, Package } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import DetalleModal from './components/detalleModal';
-import { Order } from '../../types/index';
+import { Order, OrderWithQuote } from '../../types/index';
 import { useSortedOrders } from '../../hooks/useSortedOrders';
 import { VehicleType } from '@prisma/client';
-
-type OrderWithQuote =
-  Order & {
-    quote?: {
-      distanceKm: number;
-      durationMinutes: number;
-      price: number;
-    };
-  };
+import { useRouter } from 'next/navigation';
+import { obtenerUrlMapaEstatico } from '../lib/delivery/maps';
+import Image from 'next/image';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 export default function DashboardPage() {
   // const [isOnline, setIsOnline] = useState(true);
@@ -28,7 +23,6 @@ export default function DashboardPage() {
   const { orderdOrders, activeTab, setActiveTab, tabs } = useSortedOrders(orders);
 
   useEffect(() => {
-
   async function fetchOrdersAndQuotes() {
     setLoading(true);
     try {
@@ -73,6 +67,34 @@ export default function DashboardPage() {
   } fetchOrdersAndQuotes(); 
   }, [selectedVehicle]);
 
+  const router = useRouter();
+  const handleAcceptOrder = async (order: OrderWithQuote) =>{
+    try {
+      const response = await fetch(`/api/delivery`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          storeName: order.storeName,
+          storeAddress: order.storeAddress,
+          deliveryAddress: order.deliveryAddress,
+          totalItems: order.totalItems,
+          totalWeight: order.totalWeight
+        })
+      });
+      
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(`Error al aceptar el pedido: ${errData.details || errData.error}`);
+      }
+      const delivery = await response.json();
+      
+      router.push(`/delivery/${delivery.id}`);
+    } catch (error) {
+      console.error('Error al aceptar el pedido:', error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
@@ -94,21 +116,38 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="px-4 py-3 flex flex-wrap gap-2 max-w-4xl mx-auto border-t border-gray-100">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              // Si el tab actual es el clickeado, lo desactivamos (pasando un string vacío), sino lo activamos
-              onClick={() => setActiveTab(activeTab === tab.id ? '' : tab.id)}
-              className={`rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'border-b-2 border-orange-500 text-orange-600'
-                  : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+        <div className="px-4 py-3 max-w-4xl mx-auto border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <label htmlFor="ordenar-pedidos" className="text-sm font-medium text-gray-600">
+            Ordenar por:
+          </label>
+          
+          <Select
+            value={activeTab || 'default'}
+            onValueChange={(value) => setActiveTab(value === 'default' ? "" : value)}
+          >
+            <SelectTrigger
+              id="ordenar-pedidos"
+              className=" w-55 rounded-xl border-orange-200 bg-white text-gray-700 shadow-sm transition-all hover:border-orange-400 focus:ring-2 focus:ring-orange-400 cursor-pointer"
             >
-              {tab.label}
-            </button>
-          ))}
+            <SelectValue placeholder="Orden por defecto" />
+            </SelectTrigger>
+
+            <SelectContent position="popper" className="rounded-xl border-orange-100 shadow-lg">
+              <SelectItem value="default">
+                Orden por defecto
+              </SelectItem>
+
+              {tabs.map((tab) => (
+                <SelectItem
+                  key={tab.id}
+                  value={tab.id}
+                  className="focus:bg-orange-50 focus:text-orange-600"
+                >
+                  {tab.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </header>
 
@@ -136,15 +175,21 @@ export default function DashboardPage() {
                   {/* Contenedor del Mapa */}
                   <div className="shrink-0 mx-auto sm:mx-0">
                     <div className="w-40 h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden relative">
-                      {order.storeAddress ? (
-                        <iframe
-                          title={`Mapa para ${order.storeAddress}`}
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          loading="lazy"
-                          src={`https://maps.google.com/maps?q=${encodeURIComponent(order.storeAddress)}&output=embed`}
-                        ></iframe>
+                      {order.quote?.latitude && order.quote?.longitude ? (
+                        <Image
+                          fill
+                          unoptimized
+                          src={obtenerUrlMapaEstatico({
+                            latitud: order.quote.latitude,
+                            longitud: order.quote.longitude,
+                            zoom: 15,
+                            ancho: 600,
+                            alto: 400
+                          })}
+                          alt={`Mapa de ${order.storeName}`}
+                          sizes="600px"
+                          className="object-cover rounded-lg"
+                        />
                       ) : (
                         <div className="text-center">
                           <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-1" />
@@ -173,7 +218,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* LADO DERECHO: Precio arriba y Botón abajo (solo en pantallas md) */}
-                <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-100 md:border-0 md:pt-0 md:flex-col md:justify-between md:items-end md:shrink-0">
+                <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-100 md:border-0 md:pt-0 md:flex-col md:justify-between md:items-end md:shrink-0 md:space-y-4">
                     {order.quote && (
                     <div className="text-right">
                       <p className="text-xl font-bold text-orange-500">${order.quote.price}</p>
@@ -182,7 +227,7 @@ export default function DashboardPage() {
                   
                   <button 
                     onClick={() => setSelectedOrder(order)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base mt-auto"
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base cursor-pointer"
                   >
                     Ver Detalles
                   </button>
@@ -198,6 +243,7 @@ export default function DashboardPage() {
           <DetalleModal 
             order={selectedOrder} 
             onClose={() => setSelectedOrder(null)} 
+            onAccept={() => handleAcceptOrder(selectedOrder)}
           />
         )}
       </main>
