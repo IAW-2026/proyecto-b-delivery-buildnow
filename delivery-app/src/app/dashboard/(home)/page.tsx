@@ -17,7 +17,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/src/components/ui/select";
-import Head from "next/head";
 
 export default function HomePage() {
   // const [isOnline, setIsOnline] = useState(true);
@@ -95,7 +94,7 @@ export default function HomePage() {
       }
       const delivery = await response.json();
 
-      router.push(`/delivery/${delivery.id}`);
+      router.push(`/dashboard/delivery/${delivery.id}`);
     } catch (error) {
       console.error("Error al aceptar el pedido:", error);
     }
