@@ -4,11 +4,12 @@ import { geocodeAddress } from '../../../lib/delivery/geocode';
 import { calculateRoute } from '../../../lib/delivery/routing';
 import { calculateDeliveryFee } from '../../../lib/delivery/pricing';
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
-    const body = await request.json();
-
-    const {storeAddress, deliveryAddress, vehicle} = body;
+    const { searchParams } = new URL(request.url);
+    const storeAddress = searchParams.get('storeAddress');
+    const deliveryAddress = searchParams.get('deliveryAddress');
+    const vehicle = searchParams.get('vehicle');
 
     if (!storeAddress ||!deliveryAddress || !vehicle ) {
       return NextResponse.json(

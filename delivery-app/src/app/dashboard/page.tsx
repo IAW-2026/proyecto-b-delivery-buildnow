@@ -31,20 +31,12 @@ export default function DashboardPage() {
       const enrichedOrders = await Promise.all(
         data.map(async (order) => {
             try {
-              const quoteResponse = await fetch('/api/delivery/quote',
-                {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type':
-                      'application/json'
-                  },
-                  body: JSON.stringify({
-                    storeAddress:order.storeAddress,
-                    deliveryAddress:order.deliveryAddress,
-                    vehicle:selectedVehicle
-                  })
-                }
-              );
+              const params = new URLSearchParams({
+                storeAddress: order.storeAddress || '',
+                deliveryAddress: order.deliveryAddress || '',
+                vehicle: selectedVehicle
+              });
+              const quoteResponse = await fetch(`/api/delivery/quote?${params.toString()}`);
 
               if (!quoteResponse.ok) {
                 return order;
