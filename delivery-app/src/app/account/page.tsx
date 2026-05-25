@@ -13,6 +13,7 @@ import {
 } from "@/src/components/ui/select";
 import PayoutTabs from "./components/payoutTabs";
 import DeliveryTab from "./components/deliveryTab";
+import { Button } from "@/src/components/ui/button";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
@@ -27,7 +28,8 @@ export default function ProfilePage() {
     firstName: "",
     lastName: "",
     phone: "",
-    vehicle: "MOTORCYCLE",
+    vehicle: "",
+    email: "",
   });
 
   // Estados para los datos de los historiales
@@ -47,12 +49,31 @@ export default function ProfilePage() {
       firstName: user.firstName || "",
       lastName: user.lastName || "",
       phone: user.primaryPhoneNumber?.phoneNumber || "",
-      vehicle: "MOTORCYCLE", // Simulado
+      vehicle: "",
+      email: user.primaryEmailAddress?.emailAddress || "",
     });
   }
 
   // Fetch de historiales cuando se cambia de tab
   useEffect(() => {
+    async function fetchProfile() {
+      if (!user) return;
+      try {
+        const res = await fetch("/api/account/profile");
+        if (!res.ok) return;
+        const data = await res.json();
+        setProfileData({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          phone: data.phone || "",
+          vehicle: data.vehicle || "",
+          email: data.email || "",
+        });
+      } catch (error) {
+        console.error("Error al cargar perfil:", error);
+      }
+    }
+
     async function fetchData() {
       if (!user) return;
       try {
@@ -98,16 +119,35 @@ export default function ProfilePage() {
       }
     }
 
+    if (isLoaded && user) {
+      fetchProfile();
+    }
+
     if (activeTab !== "profile") {
       fetchData();
     }
-  }, [activeTab, user]);
+  }, [activeTab, user, isLoaded]);
 
-  const handleSaveProfile = () => {
-    // Aquí iría la lógica real para actualizar la BD o el perfil de Clerk
-    // await user.update({ firstName: profileData.firstName, lastName: profileData.lastName });
-    setIsEditing(false);
-    alert("¡Perfil actualizado con éxito!");
+  const handleSaveProfile = async () => {
+    try {
+      const response = await fetch("/api/account/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo actualizar el perfil.");
+      }
+
+      setIsEditing(false);
+      alert("¡Perfil actualizado con éxito!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error al guardar perfil:", error);
+      alert(error?.message || "Error al actualizar el perfil.");
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,19 +270,6 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={profileData.phone}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className={`w-full h-10 px-3 rounded-lg border text-sm ${isEditing ? "border-orange-300 focus:ring-2 focus:ring-orange-200 outline-none bg-white" : "border-transparent bg-gray-50 text-gray-600"} transition-all`}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Vehículo
                   </label>
                   <Select
@@ -274,20 +301,60 @@ export default function ProfilePage() {
                         Bicicleta
                       </SelectItem>
                       <SelectItem
-                        value="MOTORCYCLE"
+                        value="MOTORBIKE"
                         className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
                       >
-                        Motocicleta
+                        Moto
                       </SelectItem>
                       <SelectItem
                         value="CAR"
                         className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
                       >
-                        Automóvil
+                        Auto
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Teléfono asociado a la cuenta
+                  </label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={profileData.phone}
+                    onChange={handleInputChange}
+                    disabled={true}
+                    className={`w-full h-10 px-3 rounded-lg border text-sm border-transparent bg-gray-50 text-gray-600 transition-all`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mail asociado a la cuenta
+                  </label>
+                  <input
+                    type="text"
+                    name="email"
+                    value={profileData.email}
+                    onChange={handleInputChange}
+                    disabled={true}
+                    className={`w-full h-10 px-3 rounded-lg border text-sm border-transparent bg-gray-50 text-gray-600 transition-all`}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 border-t pt-6">
+                <p className="text-sm text-gray-600 mb-4">
+                  Gestión de la seguridad y contraseña:
+                </p>
+
+                <Button
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={() => router.push("/account/security")}
+                >
+                  Seguridad de la cuenta
+                </Button>
               </div>
             </div>
           )}
