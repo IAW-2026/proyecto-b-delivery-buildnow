@@ -46,18 +46,16 @@ body {
   background-color: #ffffff;
   color: #1a1a1a;
   /* Fuente Sans-Serif limpia como la de la imagen */
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 input::placeholder {
   font-weight: 500;
   color: #1f2937; /* Gray 800 */
-}
-
-.CliqueableCard {
-  border: 1px solid #ccc;
-  padding: 16px;
-  cursor: pointer;
 }
 
 @theme inline {
