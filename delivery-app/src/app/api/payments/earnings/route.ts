@@ -32,7 +32,6 @@ export async function GET(request: Request) {
     // =====================================================================
     // MOCK ACTUAL (Simulación para avanzar con tu Frontend del repartidor)
     // =====================================================================
-    await new Promise((resolve) => setTimeout(resolve, 800)); // Simulamos un retraso de red
 
     const repartidor = await prisma.repartidor.findFirst({
       where: { clerkUserId: recipientId },

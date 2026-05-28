@@ -39,9 +39,6 @@ export async function POST(request: Request) {
     // MOCK ACTUAL (Simulación para avanzar con el frontend del repartidor)
     // =====================================================================
 
-    // Simulamos un retraso de red para probar estados de carga (loaders) en el UI
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
     const mockResponse = generateMockPayoutCreated(
       orderId,
       recipientId,
@@ -90,7 +87,6 @@ export async function GET(request: Request) {
     // =====================================================================
     // MOCK ACTUAL (Para poder avanzar con tu Frontend del repartidor)
     // =====================================================================
-    await new Promise((resolve) => setTimeout(resolve, 800)); // Retraso de red
 
     // 1. Primero buscamos al repartidor en la BD usando el ID de Clerk
     const repartidor = await prisma.repartidor.findFirst({

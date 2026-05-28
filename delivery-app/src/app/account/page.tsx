@@ -317,19 +317,6 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Teléfono asociado a la cuenta
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={profileData.phone}
-                    onChange={handleInputChange}
-                    disabled={true}
-                    className={`w-full h-10 px-3 rounded-lg border text-sm border-transparent bg-gray-50 text-gray-600 transition-all`}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mail asociado a la cuenta
                   </label>
                   <input
