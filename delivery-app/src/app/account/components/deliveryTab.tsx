@@ -1,6 +1,6 @@
 "Use client";
 
-import { StatusDelivery } from "@/generated/prisma/client";
+import { StatusDelivery } from "@prisma/client";
 import { Calendar, Package } from "lucide-react";
 
 type Delivery = {
