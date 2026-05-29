@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, User, Package, Wallet, Edit2, Save, X } from "lucide-react";
+import { Button } from "@/src/components/ui/button";
 import {
   Select,
   SelectTrigger,
@@ -13,7 +14,7 @@ import {
 } from "@/src/components/ui/select";
 import PayoutTabs from "./components/payoutTabs";
 import DeliveryTab from "./components/deliveryTab";
-import { Button } from "@/src/components/ui/button";
+import ProtectByRole from "./components/protectByRole";
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
@@ -154,6 +155,17 @@ export default function ProfilePage() {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
+  const handleExit = () => {
+    const role = user?.publicMetadata?.role;
+
+    // Forzamos una redirección limpia hacia adelante, rompiendo la pila vieja
+    if (role === "admin") {
+      router.push("/dashboard/admin");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
@@ -161,7 +173,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between p-4 max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push("/dashboard")}
+              onClick={handleExit}
               className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -182,30 +194,32 @@ export default function ProfilePage() {
       </header>
 
       <main className="px-4 py-6 max-w-4xl mx-auto">
-        {/* Tabs de navegación */}
-        <div className="flex justify-center overflow-x-auto border-b border-gray-200 mb-6 hide-scrollbar gap-2">
-          {[
-            { id: "profile", label: "Datos Personales", icon: User },
-            { id: "deliveries", label: "Mis Envíos", icon: Package },
-            { id: "payouts", label: "Payouts", icon: Wallet },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                if (tab.id !== "profile") setLoadingData(true);
-              }}
-              className={`flex items-center gap-2 whitespace-nowrap py-3 px-4 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
-                activeTab === tab.id
-                  ? "border-orange-500 text-orange-600 bg-orange-50 rounded-t-lg"
-                  : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-t-lg"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <ProtectByRole allowedRoles={["delivery"]}>
+          {/* Tabs de navegación */}
+          <div className="flex justify-center overflow-x-auto border-b border-gray-200 mb-6 hide-scrollbar gap-2">
+            {[
+              { id: "profile", label: "Datos Personales", icon: User },
+              { id: "deliveries", label: "Mis Envíos", icon: Package },
+              { id: "payouts", label: "Payouts", icon: Wallet },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id !== "profile") setLoadingData(true);
+                }}
+                className={`flex items-center gap-2 whitespace-nowrap py-3 px-4 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
+                  activeTab === tab.id
+                    ? "border-orange-500 text-orange-600 bg-orange-50 rounded-t-lg"
+                    : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-t-lg"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </ProtectByRole>
 
         {/* Contenido de los Tabs */}
         <div className="space-y-4">
@@ -268,53 +282,55 @@ export default function ProfilePage() {
                     className={`w-full h-10 px-3 rounded-lg border text-sm ${isEditing ? "border-orange-300 focus:ring-2 focus:ring-orange-200 outline-none bg-white" : "border-transparent bg-gray-50 text-gray-600"} transition-all`}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vehículo
-                  </label>
-                  <Select
-                    value={profileData.vehicle}
-                    onValueChange={(value) =>
-                      setProfileData({ ...profileData, vehicle: value })
-                    }
-                    disabled={!isEditing}
-                  >
-                    <SelectTrigger
-                      size="lg"
-                      className={`w-full h-10 px-3 rounded-lg cursor-pointer ${
-                        isEditing
-                          ? "border-orange-300 bg-white text-gray-700 transition-all hover:border-orange-400 focus:ring-2 focus:ring-orange-400"
-                          : "border-transparent bg-gray-50 text-gray-600"
-                      }`}
+                <ProtectByRole allowedRoles={["delivery"]}>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Vehículo
+                    </label>
+                    <Select
+                      value={profileData.vehicle}
+                      onValueChange={(value) =>
+                        setProfileData({ ...profileData, vehicle: value })
+                      }
+                      disabled={!isEditing}
                     >
-                      <SelectValue placeholder="Selecciona un vehículo" />
-                    </SelectTrigger>
+                      <SelectTrigger
+                        size="lg"
+                        className={`w-full h-10 px-3 rounded-lg cursor-pointer ${
+                          isEditing
+                            ? "border-orange-300 bg-white text-gray-700 transition-all hover:border-orange-400 focus:ring-2 focus:ring-orange-400"
+                            : "border-transparent bg-gray-50 text-gray-600"
+                        }`}
+                      >
+                        <SelectValue placeholder="Selecciona un vehículo" />
+                      </SelectTrigger>
 
-                    <SelectContent
-                      position="popper"
-                      className="rounded-xl border-orange-100 shadow-lg"
-                    >
-                      <SelectItem
-                        value="BICYCLE"
-                        className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
+                      <SelectContent
+                        position="popper"
+                        className="rounded-xl border-orange-100 shadow-lg"
                       >
-                        Bicicleta
-                      </SelectItem>
-                      <SelectItem
-                        value="MOTORBIKE"
-                        className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
-                      >
-                        Moto
-                      </SelectItem>
-                      <SelectItem
-                        value="CAR"
-                        className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
-                      >
-                        Auto
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                        <SelectItem
+                          value="BICYCLE"
+                          className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
+                        >
+                          Bicicleta
+                        </SelectItem>
+                        <SelectItem
+                          value="MOTORBIKE"
+                          className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
+                        >
+                          Moto
+                        </SelectItem>
+                        <SelectItem
+                          value="CAR"
+                          className="focus:bg-orange-50 focus:text-orange-600 cursor-pointer"
+                        >
+                          Auto
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </ProtectByRole>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mail asociado a la cuenta
@@ -346,22 +362,24 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* LOADER GENÉRICO PARA LOS TABS DE HISTORIAL */}
-          {loadingData && activeTab !== "profile" && (
-            <div className="flex justify-center py-10">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-            </div>
-          )}
+          <ProtectByRole allowedRoles={["delivery"]}>
+            {/* LOADER GENÉRICO PARA LOS TABS DE HISTORIAL */}
+            {loadingData && activeTab !== "profile" && (
+              <div className="flex justify-center py-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+              </div>
+            )}
 
-          {/* TAB: PAYOUTS y EARNINGS (Conectado a la API) */}
-          {!loadingData && activeTab === "payouts" && (
-            <PayoutTabs payouts={payouts} earnings={earnings} />
-          )}
+            {/* TAB: PAYOUTS y EARNINGS (Conectado a la API) */}
+            {!loadingData && activeTab === "payouts" && (
+              <PayoutTabs payouts={payouts} earnings={earnings} />
+            )}
 
-          {/* TAB: HISTORIAL DE ENVÍOS */}
-          {!loadingData && activeTab === "deliveries" && (
-            <DeliveryTab deliveries={deliveries} />
-          )}
+            {/* TAB: HISTORIAL DE ENVÍOS */}
+            {!loadingData && activeTab === "deliveries" && (
+              <DeliveryTab deliveries={deliveries} />
+            )}
+          </ProtectByRole>
         </div>
       </main>
     </div>
