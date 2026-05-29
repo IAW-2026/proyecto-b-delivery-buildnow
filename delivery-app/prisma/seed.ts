@@ -9,14 +9,14 @@ async function main() {
 
   // Repartidores de prueba
   const rep1 = await prisma.repartidor.upsert({
-    where: { email: "martina03.moreno@gmail.com" },
+    where: { email: "delivery_1@gmail.com" },
     update: {
-      clerkUserId: "user_3DpGF63ZWlhye88fALbW6PWrEFL", // Forzar actualizacion ID de Clerk
+      clerkUserId: "user_3EPaQy8573olgQt01UdOCS17s83", // Forzar actualizacion ID de Clerk
     },
     create: {
-      clerkUserId: "user_3DpGF63ZWlhye88fALbW6PWrEFL",
-      name: "Martina Moreno",
-      email: "martina03.moreno@gmail.com",
+      clerkUserId: "user_3EPaQy8573olgQt01UdOCS17s83",
+      name: "Delivery Prueba1",
+      email: "delivery_1@gmail.com",
       phone: "+14155552671",
       vehicleType: "MOTORBIKE",
       role: "DELIVERY",
