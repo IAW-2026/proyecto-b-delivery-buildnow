@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 // Definimos qué rutas de nuestra aplicación serán públicas
 const isPublicRoute = createRouteMatcher([
@@ -14,13 +15,26 @@ const isPublicRoute = createRouteMatcher([
 
 // Generamos el middleware de Clerk y lo guardamos en una constante
 const clerk = clerkMiddleware(async (auth, request) => {
-  // Si la ruta NO es pública, obligamos al usuario a estar autenticado
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
+
+  const { userId, sessionClaims } = await auth();
+  const url = request.nextUrl.clone();
+
+  if (userId && url.pathname === "/") {
+    const role = sessionClaims?.metadata?.role;
+
+    if (role === "admin") {
+      return NextResponse.redirect(new URL("/dashboard/admin", request.url));
+    }
+
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  return NextResponse.next();
 });
 
-// Exportamos una función llamada 'middleware' explícitamente para que Next.js no dé error
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function middleware(request: any, event: any) {
   return clerk(request, event);
