@@ -30,7 +30,7 @@ export function SignOutDialog() {
         </DialogHeader>
 
         <div className="mt-4 flex justify-end gap-2">
-          <DialogClose>
+          <DialogClose asChild>
             <button className="rounded-lg border px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors">
               Cancelar
             </button>
