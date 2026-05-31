@@ -11,15 +11,17 @@ export const mockAvailableOrders = [
     deliveryAddress: "San Martín 450, Bahía Blanca, Buenos Aires, Argentina",
     totalWeight: 1.5,
     totalItems: 3,
+    status: "READY", // Agregado para poder actualizar el estado de la orden
     createdAt: new Date().toISOString(),
   },
   {
-    id: "order_10124",
+    id: "order_10120",
     storeName: "Ferretería Central S.A.",
     storeAddress: "Sarmiento 120, Bahía Blanca, Buenos Aires, Argentina",
     deliveryAddress: "O'Higgins 340, Bahía Blanca, Buenos Aires, Argentina",
     totalWeight: 2.0,
     totalItems: 4,
+    status: "READY", // Agregado para poder actualizar el estado de la orden
     createdAt: new Date(Date.now() - 5 * 60000).toISOString(), // Hace 15 minutos
   },
   {
@@ -29,6 +31,7 @@ export const mockAvailableOrders = [
     deliveryAddress: "Zapiola 800, Bahía Blanca, Buenos Aires, Argentina",
     totalWeight: 0.8,
     totalItems: 1,
+    status: "READY", // Agregado para poder actualizar el estado de la orden
     createdAt: new Date(Date.now() - 15 * 60000).toISOString(), // Hace 5 minutos
   },
 ];
@@ -60,7 +63,7 @@ export const calculateTotalEarningsFromPayouts = (
 ) => {
   const total = payouts
     .filter((payout) => payout.status === "COMPLETED")
-    .reduce((sum, payout) => sum + payout.amount, 0);
+    .reduce((sum, payout) => sum + Number(payout.amount), 0);
 
   return parseFloat(total.toFixed(2));
 };
@@ -93,31 +96,19 @@ export const generateInteractivePayoutHistory = (
 ) => {
   return deliveries.map((delivery) => {
     // Simulamos un cálculo de pago: $1500 base + $100 por peso (si aplica)
-    const amount = 1500 + (delivery.totalWeight || 0) * 100;
+    // Si es uno de los deliveries de la seed o ya está entregado, el payout será COMPLETED
+    const isCompleted = delivery.id === "dlv_001" || delivery.id === "dlv_002";
 
     return {
       id: `payout_${delivery.id}`,
       orderId: delivery.orderId,
       recipientId: recipientId,
       recipientType: recipientType,
-      amount: amount,
-      // Si el envío está completado, asumimos que el pago también
-      status: delivery.status === "DELIVERED" ? "COMPLETED" : "PENDING",
+      amount: delivery.amount || 1500 + delivery.totalWeight * 100, // Monto basado en el delivery real
+      // Asignamos el estado dependiendo de si ya fue completado o no
+      status: isCompleted ? "COMPLETED" : "PENDING",
       // Usamos una fecha relacionada al delivery para darle realismo
       createdAt: delivery.createdAt || new Date().toISOString(),
     };
   });
-};
-
-// Agregamos un payout adicional simulado para mostrar cómo se vería un pago reciente pendiente
-export const pendingPayout = (recipientId: string, recipientType: string) => {
-  return {
-    id: "payout_10125",
-    orderId: "order_10125",
-    recipientId: recipientId,
-    recipientType: recipientType,
-    amount: 1800,
-    status: "PENDING",
-    createdAt: new Date(Date.now() - 10 * 60000).toISOString(), // Hace 10 minutos
-  };
 };

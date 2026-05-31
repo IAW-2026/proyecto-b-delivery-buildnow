@@ -28,6 +28,7 @@ export interface Delivery {
   deliveryAddress: string;
   totalWeight: number;
   totalItems: number;
+  amount: number;
   status: "ASSIGNED" | "ON_THE_WAY" | "DELIVERED";
 }
 
