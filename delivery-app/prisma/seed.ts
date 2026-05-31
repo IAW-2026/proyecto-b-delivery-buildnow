@@ -52,6 +52,7 @@ async function main() {
       deliveryAddress: "San Martín 450, Bahía Blanca",
       totalItems: 5,
       totalWeight: 12.5,
+      amount: 1850.0,
       stateHistories: {
         create: [
           { status: "ASSIGNED", timestamp: new Date(Date.now() - 60 * 60000) },
@@ -80,6 +81,7 @@ async function main() {
       deliveryAddress: "O'Higgins 340, Bahía Blanca, Buenos Aires, Argentina",
       totalItems: 4,
       totalWeight: 2.0,
+      amount: 1200.0,
       stateHistories: {
         create: [
           { status: "ASSIGNED", timestamp: new Date(Date.now() - 60 * 60000) },
