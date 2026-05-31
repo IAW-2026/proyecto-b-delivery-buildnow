@@ -1,6 +1,6 @@
-import { VehicleType } from '@prisma/client';
+import { VehicleType } from "@prisma/client";
 
-import { ORS_PROFILES } from './vehicleMapping';
+import { ORS_PROFILES } from "./vehicleMapping";
 
 export interface RouteResult {
   distanceKm: number;
@@ -15,28 +15,27 @@ export async function calculateRoute(
   startLon: number,
   endLat: number,
   endLon: number,
-  vehicle: VehicleType
+  vehicle: VehicleType,
 ): Promise<RouteResult> {
-
   const apiKey = process.env.OPENROUTESERVICE_KEY;
-  const profile =  ORS_PROFILES[vehicle];
+  const profile = ORS_PROFILES[vehicle];
   const url = `https://api.openrouteservice.org/v2/directions/${profile}`;
 
   const body = {
     coordinates: [
       [startLon, startLat],
-      [endLon, endLat]
-    ]
+      [endLon, endLat],
+    ],
   };
 
   const response = await fetch(url, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: apiKey!,
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(body),
-    cache: 'no-store'
+    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -49,18 +48,14 @@ export async function calculateRoute(
   const summary = data.routes?.[0]?.summary;
 
   if (!summary) {
-    throw new Error('Ruta no encontrada');
+    throw new Error("Ruta no encontrada");
   }
 
   return {
-    distanceKm: Number(
-      (summary.distance / 1000).toFixed(2)
-    ),
-    durationMinutes: Number(
-      (summary.duration / 60).toFixed(1)
-    ),
+    distanceKm: Number((summary.distance / 1000).toFixed(2)),
+    durationMinutes: Number((summary.duration / 60).toFixed(1)),
     latitude: endLat,
     longitude: endLon,
-    vehicleUsed: vehicle
+    vehicleUsed: vehicle,
   };
 }
