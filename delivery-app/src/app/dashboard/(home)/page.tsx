@@ -26,6 +26,8 @@ export default function HomePage() {
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>(
     VehicleType.CAR,
   );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [activeDeliveries, setActiveDeliveries] = useState<any[]>([]);
 
   const { user } = useUser();
   const { orderdOrders, activeTab, setActiveTab, tabs } =
@@ -70,6 +72,32 @@ export default function HomePage() {
     fetchOrdersAndQuotes();
   }, [selectedVehicle]);
 
+  // Buscar si el usuario ya tiene un envío en curso al cargar el Dashboard
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    async function fetchActiveDelivery() {
+      try {
+        const res = await fetch(`/api/delivery?userId=${user?.id}`);
+        const deliveries = await res.json();
+
+        if (res.ok) {
+          const actives = deliveries.filter(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (d: any) => d.status === "ASSIGNED" || d.status === "ON_THE_WAY",
+          );
+
+          setActiveDeliveries(actives);
+        }
+      } catch (error) {
+        console.error("Error al obtener envíos activos:", error);
+      }
+    }
+    fetchActiveDelivery();
+  }, [user?.id]);
+
   const router = useRouter();
   const handleAcceptOrder = async (order: OrderWithQuote) => {
     try {
@@ -83,6 +111,7 @@ export default function HomePage() {
           deliveryAddress: order.deliveryAddress,
           totalItems: order.totalItems,
           totalWeight: order.totalWeight,
+          amount: order.quote?.price,
         }),
       });
 
@@ -149,6 +178,39 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Envíos Disponibles
           </h2>
+
+          {activeDeliveries.map((activeDelivery) => (
+            <div
+              key={activeDelivery.id}
+              className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-orange-100 p-2 rounded-full shrink-0">
+                  <Package className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-orange-900">
+                    Tienes un pedido en curso
+                  </h3>
+                  <p className="text-sm text-orange-700">
+                    Tienes una orden pendiente por entregar de{" "}
+                    <span className="font-semibold">
+                      {activeDelivery.storeName}
+                    </span>
+                    .
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() =>
+                  router.push(`/dashboard/delivery/${activeDelivery.id}`)
+                }
+                className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer shadow-sm text-sm"
+              >
+                Ir al pedido
+              </button>
+            </div>
+          ))}
 
           {loading ? (
             <div className="flex justify-center py-10">

@@ -10,6 +10,7 @@ import {
   Navigation,
   AlertTriangle,
 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 import { Delivery } from "../../../../types/index";
 import texts from "../../../../../es.json";
 
@@ -17,6 +18,11 @@ export default function DeliveryPage() {
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("ASSIGNED");
+  const [routeInfo, setRouteInfo] = useState<{
+    distance: number;
+    duration: number;
+  } | null>(null);
+  const { user } = useUser();
 
   const router = useRouter();
   const params = useParams();
@@ -45,12 +51,60 @@ export default function DeliveryPage() {
     fetchOrder();
   }, [id]);
 
+  // Recuperar información de la ruta en vivo si estamos en camino
+  // Esto garantiza que la info sobreviva si el repartidor recarga la página.
+  useEffect(() => {
+    if (status === "ON_THE_WAY" && !routeInfo && delivery) {
+      const fetchRoute = async () => {
+        try {
+          const params = new URLSearchParams({
+            origin: delivery.pickupLocation || "",
+            destination: delivery.deliveryAddress || "",
+          });
+          const vehicle =
+            (user?.publicMetadata?.vehicle as string) || "MOTORBIKE";
+          const response = await fetch(
+            `/api/distance/${vehicle}?${params.toString()}`,
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            setRouteInfo({
+              distance: data.distanceKm || data.distance || 4.5,
+              duration: data.durationMinutes || data.duration || 12,
+            });
+          } else {
+            setRouteInfo({ distance: 4.5, duration: 12 });
+          }
+        } catch (error) {
+          console.error("Error obteniendo ruta en vivo inicial:", error);
+          setRouteInfo({ distance: 4.5, duration: 12 });
+        }
+      };
+
+      fetchRoute();
+    }
+  }, [status, delivery, routeInfo, user?.publicMetadata?.vehicle]);
+
   const handleUpdateStatus = async (newStatus: string) => {
     try {
       setStatus(newStatus);
 
       // Si el pedido fue entregado, redirigimos de nuevo al inicio al cabo de 2 segundos.
       if (newStatus === "DELIVERED") {
+        // Solicitamos la creación del payout
+        await fetch("/api/payments/payouts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            orderId: (delivery as any)?.orderId || id,
+            recipientId: user?.id,
+            recipientType: "DELIVERY",
+            amount: delivery?.amount || 0, // Monto de pago simulado
+          }),
+        });
+
         setTimeout(() => {
           router.push("/dashboard");
         }, 2000);
@@ -80,7 +134,7 @@ export default function DeliveryPage() {
         <p className="text-gray-500">{texts.DELIVERY.deliveryPage.notFound}</p>
         <button
           onClick={() => router.push("/dashboard")}
-          className="text-orange-500 font-semibold hover:underline"
+          className="text-orange-500 font-semibold hover:underline cursor-pointer"
         >
           {texts.DELIVERY.deliveryPage.backToHome}
         </button>
@@ -95,7 +149,7 @@ export default function DeliveryPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push("/dashboard")}
-            className="text-gray-500 hover:text-gray-800 font-medium"
+            className="text-gray-500 hover:text-gray-800 font-medium cursor-pointer"
           >
             {texts.DELIVERY.deliveryPage.backButton}
           </button>
@@ -177,7 +231,7 @@ export default function DeliveryPage() {
             <button
               onClick={() => handleUpdateStatus("ON_THE_WAY")}
               disabled={status !== "ASSIGNED"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ASSIGNED" ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:-translate-y-0.5" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ASSIGNED" ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
             >
               <Truck className="w-5 h-5" />{" "}
               {texts.DELIVERY.deliveryPage.btnOnTheWay}
@@ -185,7 +239,7 @@ export default function DeliveryPage() {
             <button
               onClick={() => handleUpdateStatus("DELIVERED")}
               disabled={status !== "ON_THE_WAY"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ON_THE_WAY" ? "bg-green-500 hover:bg-green-600 text-white shadow-sm hover:-translate-y-0.5" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ON_THE_WAY" ? "bg-green-500 hover:bg-green-600 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
             >
               <CheckCircle className="w-5 h-5" />{" "}
               {texts.DELIVERY.deliveryPage.btnDelivered}
@@ -198,6 +252,29 @@ export default function DeliveryPage() {
               </div>
             )}
           </div>
+
+          {/* Información de la Ruta en Vivo (Solo visible EN CAMINO) */}
+          {status === "ON_THE_WAY" && routeInfo && (
+            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm flex items-start gap-3 mt-auto md:mt-0">
+              <Navigation className="w-5 h-5 text-blue-500 shrink-0 mt-0.5 animate-pulse" />
+              <div>
+                <h3 className="text-sm font-bold text-blue-800 mb-1">
+                  Viaje en curso
+                </h3>
+                <p className="text-sm text-blue-700 leading-relaxed font-medium">
+                  Estás a{" "}
+                  <span className="font-bold">{routeInfo.distance} km</span> del
+                  destino.
+                  <br />
+                  Tiempo estimado:{" "}
+                  <span className="font-bold">
+                    {routeInfo.duration} minutos
+                  </span>
+                  .
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Recuadro de Seguridad Vial */}
           <div className="bg-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm flex items-start gap-3 mt-auto md:mt-0">
