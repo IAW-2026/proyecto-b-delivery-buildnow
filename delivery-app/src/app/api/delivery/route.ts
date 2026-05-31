@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/app/lib/prisma";
 import crypto from "crypto";
 import { StatusDelivery } from "@prisma/client";
-// import { auth } from '@clerk/nextjs/server';
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // const { userId } = auth(); // Si quisieras asociarlo al repartidor logueado
+    const { userId } = await auth(); // Si quisieras asociarlo al repartidor logueado
 
     const existingDelivery = await prisma.delivery.findUnique({
       where: { orderId: body.orderId },
@@ -17,20 +17,33 @@ export async function POST(request: Request) {
       return NextResponse.json(existingDelivery, { status: 200 });
     }
 
-    const newDelivery = await prisma.delivery.create({
-      data: {
-        id: crypto.randomUUID(), // Generar un ID único
-        orderId: body.orderId,
-        storeName: body.storeName,
-        pickupLocation: body.storeAddress,
-        deliveryAddress: body.deliveryAddress,
-        totalItems: body.totalItems,
-        totalWeight: body.totalWeight,
-        status: "ASSIGNED",
-        // delivyUserId: userId
-      },
+    const newDelivery = await prisma.$transaction(async (tx) => {
+      const delivery = await tx.delivery.create({
+        data: {
+          id: crypto.randomUUID(), // Generar un ID único
+          orderId: body.orderId,
+          storeName: body.storeName,
+          pickupLocation: body.storeAddress,
+          deliveryAddress: body.deliveryAddress,
+          totalItems: body.totalItems,
+          totalWeight: body.totalWeight,
+          status: "ASSIGNED",
+          delivyUserId: userId,
+          amount: body.amount,
+        },
+      });
+
+      await tx.sTATE_HISTORY.create({
+        data: {
+          deliveryId: delivery.id,
+          status: "ASSIGNED",
+        },
+      });
+
+      return delivery;
     });
 
+    // Aquí podrías agregar el llamado (fetch) a la Seller App para notificar que la orden fue aceptada
     return NextResponse.json(newDelivery, { status: 201 });
   } catch (error) {
     console.error("Error al crear el delivery:", error);
@@ -52,7 +65,6 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId");
     const status = searchParams.get("status");
 
-    // 1. Si nos pasan un deliveryId, buscamos un envío en específico
     if (deliveryId) {
       const delivery = await prisma.delivery.findUnique({
         where: { id: deliveryId },
@@ -66,7 +78,6 @@ export async function GET(request: Request) {
       return NextResponse.json(delivery, { status: 200 });
     }
 
-    // 2. Si nos pasan un userId, buscamos los envíos de ese repartidor (opcionalmente por estado)
     if (userId) {
       // Primero buscamos al repartidor real usando el ID de Clerk
       const repartidor = await prisma.repartidor.findUnique({
@@ -77,10 +88,14 @@ export async function GET(request: Request) {
 
       const deliveries = await prisma.delivery.findMany({
         where: {
-          delivyUserId: repartidor.id, // Usamos el ID interno del repartidor
-          ...(status ? { status: status as StatusDelivery } : {}), // Si enviaron status, lo sumamos al filtro
+          OR: [{ delivyUserId: repartidor.id }, { delivyUserId: userId }],
+          ...(status ? { status: status as StatusDelivery } : {}),
+        },
+        include: {
+          stateHistories: true,
         },
       });
+
       return NextResponse.json(deliveries, { status: 200 });
     }
 

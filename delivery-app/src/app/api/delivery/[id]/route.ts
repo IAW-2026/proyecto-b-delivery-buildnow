@@ -57,6 +57,14 @@ export async function PATCH(
       data: { status: status as StatusDelivery },
     });
 
+    // generar nuevo sTATE_HISTORY
+    await prisma.sTATE_HISTORY.create({
+      data: {
+        deliveryId: id,
+        status: status as StatusDelivery,
+      },
+    });
+
     return NextResponse.json(updatedDelivery, { status: 200 });
   } catch (error) {
     console.error("Error al actualizar el estado del delivery:", error);
