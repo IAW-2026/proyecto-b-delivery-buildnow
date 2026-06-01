@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { ChevronDownIcon } from "lucide-react";
 import { useRouter } from "next/dist/client/components/navigation";
 import { SignOutDialog } from "./sing-out-modal";
+import Image from "next/image";
 
 export function DashboardHeader() {
   const { user } = useUser();
@@ -15,15 +16,20 @@ export function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-gray-100">
-            <span className="text-xl">🚚</span>
+          <div className="relative h-15 w-15 overflow-hidden rounded-md bg-gray-50">
+            <Image
+              src="/buildnow-logo.png"
+              alt="Logo de buildNOW"
+              fill
+              sizes="180px"
+              priority
+              className="object-contain"
+            />
           </div>
 
-          <div>
-            <p className="text-xl font-bold text-gray-900">buildNOW</p>
-          </div>
+          <p className="text-xl font-bold text-orange-900">buildNOW</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
