@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import {
   generateMockPayoutCreated,
   generateInteractivePayoutHistory,
-  pendingPayout,
 } from "../../../lib/mockdata";
 import { prisma } from "../../../lib/prisma";
 
@@ -88,29 +87,24 @@ export async function GET(request: Request) {
     // MOCK ACTUAL (Para poder avanzar con tu Frontend del repartidor)
     // =====================================================================
 
-    // 1. Primero buscamos al repartidor en la BD usando el ID de Clerk
     const repartidor = await prisma.repartidor.findFirst({
       where: { clerkUserId: recipientId },
     });
 
-    if (!repartidor) return NextResponse.json([], { status: 200 });
-
-    // 2. Buscamos los envíos (deliveries) reales usando el ID interno del repartidor
     const deliveries = await prisma.delivery.findMany({
       where: {
-        delivyUserId: repartidor.id,
+        OR: [
+          { delivyUserId: recipientId },
+          ...(repartidor ? [{ delivyUserId: repartidor.id }] : []),
+        ],
       },
     });
 
-    // 3. Generamos los payouts mapeados a los envíos reales junto con los payout pendientes creados
     const mockPayouts = generateInteractivePayoutHistory(
       deliveries,
       recipientId,
       recipientType,
     );
-
-    // 4. Agregamos el payout pendiente simulados
-    mockPayouts.push(pendingPayout(recipientId, recipientType));
 
     return NextResponse.json(mockPayouts, { status: 200 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

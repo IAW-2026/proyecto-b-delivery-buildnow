@@ -21,6 +21,7 @@ model Delivery {
   updatedAt       DateTime        @updatedAt
   stateHistories  STATE_HISTORY[]
   ubications      Ubication[]
+  amount Decimal @db.Decimal(10, 2) @default(0.00)
 }
 
 model Repartidor {

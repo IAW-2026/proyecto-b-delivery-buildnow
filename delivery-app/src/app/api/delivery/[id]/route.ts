@@ -2,6 +2,33 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/app/lib/prisma";
 import { StatusDelivery } from "@prisma/client";
 
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  try {
+    const delivery = await prisma.delivery.findUnique({
+      where: { id },
+    });
+
+    if (!delivery) {
+      return NextResponse.json(
+        { error: "Delivery no encontrado" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(delivery);
+  } catch (error) {
+    console.error("Error al obtener delivery:", error);
+    return NextResponse.json(
+      { error: "Error al obtener delivery" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -28,6 +55,14 @@ export async function PATCH(
     const updatedDelivery = await prisma.delivery.update({
       where: { id },
       data: { status: status as StatusDelivery },
+    });
+
+    // generar nuevo sTATE_HISTORY
+    await prisma.sTATE_HISTORY.create({
+      data: {
+        deliveryId: id,
+        status: status as StatusDelivery,
+      },
     });
 
     return NextResponse.json(updatedDelivery, { status: 200 });

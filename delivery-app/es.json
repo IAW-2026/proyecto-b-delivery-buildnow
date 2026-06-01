@@ -1,0 +1,28 @@
+{
+  "DELIVERY": {
+    "deliveryPage": {
+      "title": "Envío en curso",
+      "backButton": "← Volver",
+      "status": {
+        "ASSIGNED": "ASIGNADO",
+        "ON_THE_WAY": "CERCA DEL DESTINO",
+        "DELIVERED": "ENTREGADO"
+      },
+      "orderNumber": "Pedido #",
+      "pickup": "Recogida",
+      "delivery": "Entrega",
+      "packages": "Bultos:",
+      "weight": "Peso:",
+      "updateStatus": "Actualizar Estado",
+      "btnPickedUp": "Ya tengo el pedido",
+      "btnOnTheWay": "Estoy en camino",
+      "btnDelivered": "Entregado al cliente",
+      "successMessage": "¡Excelente trabajo! Redirigiendo al inicio...",
+      "safetyTitle": "¡Viaja seguro!",
+      "safetyDesc": "Recuerda respetar las normas de tránsito, usar tu equipo de protección y no utilizar el celular mientras manejas.",
+      "mapError": "No se puede generar la ruta del mapa.",
+      "notFound": "No se encontró la información del pedido.",
+      "backToHome": "Volver al Inicio"
+    }
+  }
+}

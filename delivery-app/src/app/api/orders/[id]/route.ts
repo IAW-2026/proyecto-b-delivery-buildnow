@@ -1,77 +1,55 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../lib/prisma'
-import { StatusDelivery } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { mockAvailableOrders } from "../../../lib/mockdata";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } },
 ) {
   try {
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
 
-  
     const body = await request.json();
     const { status } = body;
 
     if (!status) {
       return NextResponse.json(
         { error: 'El campo "status" es requerido.' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const allowedStatuses: StatusDelivery[] = ['ASSIGNED', 'ON_THE_WAY', 'DELIVERED'];
-    if (!allowedStatuses.includes(status)) {
+    // Buscamos la orden en nuestros datos simulados (mocks)
+    const orderIndex = mockAvailableOrders.findIndex((o) => o.id === orderId);
+
+    if (orderIndex === -1) {
       return NextResponse.json(
-        { error: `Estado inválido. Los permitidos son: ${allowedStatuses.join(', ')}` },
-        { status: 400 }
+        { error: "No se encontró la orden especificada en los mocks." },
+        { status: 404 },
       );
     }
 
-    const existingDelivery = await prisma.delivery.findUnique({
-      where: { orderId: orderId },
-    });
+    // Actualizamos el estado de la orden en el mock
+    mockAvailableOrders[orderIndex].status = status;
 
-    if (!existingDelivery) {
-      return NextResponse.json(
-        { error: 'No se encontró una entrega asociada a ese pedido.' },
-        { status: 404 }
-      );
-    }
-
-    const updatedDelivery = await prisma.$transaction(async (tx) => {
-      const delivery = await tx.delivery.update({
-        where: { id: existingDelivery.id },
-        data: { status: status as StatusDelivery },
-      });
-
-      await tx.sTATE_HISTORY.create({
-        data: {
-          deliveryId: delivery.id,
-          status: status as StatusDelivery,
-        },
-      });
-
-      return delivery;
-    });
-
-    // Unificación con seller app
-    // await fetch(`https://api.seller-app.com/orders/${orderId}`, { ... })
-
-    // 5. Responder al frontend con el formato solicitado
-    return NextResponse.json({
-      id: updatedDelivery.orderId,
-      status: updatedDelivery.status,
-      updatedAt: new Date().toISOString(), // Como no tienes updatedAt en tu schema, generamos la fecha actual
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        id: orderId,
+        status: status,
+        updatedAt: new Date().toISOString(),
+      },
+      { status: 200 },
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error al actualizar la orden:", error);
     return NextResponse.json(
-      { error: 'Error interno del servidor al actualizar el estado.' },
-      { status: 500 }
+      {
+        error:
+          "Error interno del servidor al actualizar el estado de la orden.",
+      },
+      { status: 500 },
     );
   }
 }
