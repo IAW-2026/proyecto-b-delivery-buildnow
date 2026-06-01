@@ -35,13 +35,13 @@ export default function PayoutTabs({ payouts, earnings }: Props) {
       {earnings.map((earning) => (
         <div
           key={earning.id}
-          className="bg-orange-50 p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between"
+          className="bg-orange-100 p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between"
         >
           <div>
-            <p className="text-orange-600  font-semibold">
+            <p className="text-orange-700  font-semibold">
               {earning.description}
             </p>
-            <p className="text-xs text-orange-500 flex items-center gap-1 mt-0.5">
+            <p className="text-xs text-orange-700 flex items-center gap-1 mt-0.5">
               <Calendar className="w-3 h-3" />{" "}
               {new Date().toLocaleDateString("es-ES")} a las{" "}
               {new Date().toLocaleTimeString("es-ES", {
@@ -50,7 +50,7 @@ export default function PayoutTabs({ payouts, earnings }: Props) {
               })}
             </p>
           </div>
-          <p className="text-lg font-bold text-orange-600">
+          <p className="text-lg font-bold text-orange-700">
             +${earning.amount}
           </p>
         </div>

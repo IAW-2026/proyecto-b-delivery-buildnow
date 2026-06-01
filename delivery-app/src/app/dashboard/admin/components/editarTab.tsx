@@ -42,10 +42,14 @@ export default function EditarTab({
             }}
           >
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-slate-700"
+              >
                 Nombre
               </label>
               <input
+                id="name"
                 value={form.name}
                 onChange={(event) =>
                   setForm((prev) => ({
@@ -58,10 +62,14 @@ export default function EditarTab({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-slate-700"
+              >
                 Email
               </label>
               <input
+                id="email"
                 value={form.email}
                 onChange={(event) =>
                   setForm((prev) => ({
@@ -74,10 +82,14 @@ export default function EditarTab({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label
+                htmlFor="vehicleType"
+                className="block text-sm font-medium text-slate-700"
+              >
                 Vehículo
               </label>
               <select
+                id="vehicleType"
                 value={form.vehicleType}
                 onChange={(event) =>
                   setForm((prev) => ({
@@ -97,7 +109,7 @@ export default function EditarTab({
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-600 cursor-pointer"
+              className="w-full rounded-xl bg-orange-700 px-4 py-3 text-sm font-semibold text-white hover:bg-orange-500 cursor-pointer"
             >
               Guardar datos del repartidor
             </button>

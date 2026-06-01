@@ -166,7 +166,7 @@ export default function DeliveryPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row max-w-6xl mx-auto w-full gap-4 p-4">
+      <main className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row max-w-6xl mx-auto w-full gap-4 p-4">
         {/* Columna Izquierda: Información y Botones */}
         <div className="flex flex-col gap-4 md:w-1/3 shrink-0">
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
@@ -231,7 +231,7 @@ export default function DeliveryPage() {
             <button
               onClick={() => handleUpdateStatus("ON_THE_WAY")}
               disabled={status !== "ASSIGNED"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ASSIGNED" ? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ASSIGNED" ? "bg-orange-700 hover:bg-orange-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
             >
               <Truck className="w-5 h-5" />{" "}
               {texts.DELIVERY.deliveryPage.btnOnTheWay}
@@ -239,7 +239,7 @@ export default function DeliveryPage() {
             <button
               onClick={() => handleUpdateStatus("DELIVERED")}
               disabled={status !== "ON_THE_WAY"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ON_THE_WAY" ? "bg-green-500 hover:bg-green-600 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ON_THE_WAY" ? "bg-green-700 hover:bg-green-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
             >
               <CheckCircle className="w-5 h-5" />{" "}
               {texts.DELIVERY.deliveryPage.btnDelivered}
@@ -278,12 +278,12 @@ export default function DeliveryPage() {
 
           {/* Recuadro de Seguridad Vial */}
           <div className="bg-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm flex items-start gap-3 mt-auto md:mt-0">
-            <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-orange-700 shrink-0 mt-0.5" />
             <div>
-              <h3 className="text-sm font-bold text-orange-500 mb-1">
+              <h3 className="text-sm font-bold text-orange-700 mb-1">
                 {texts.DELIVERY.deliveryPage.safetyTitle}
               </h3>
-              <p className="text-xs text-orange-400 leading-relaxed">
+              <p className="text-xs text-orange-700 leading-relaxed">
                 {texts.DELIVERY.deliveryPage.safetyDesc}
               </p>
             </div>

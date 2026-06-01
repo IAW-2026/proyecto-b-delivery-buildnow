@@ -50,11 +50,11 @@ export default function DeliveryTab({ deliveries }: Props) {
                     {del.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-600 mt-2">
                   ID del pedido: {del.id}
                 </p>
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                  <p className="text-xs text-gray-600 flex items-center gap-1">
                     <Calendar className="w-3 h-3" /> Fecha:{" "}
                     {new Date(del.createdAt).toLocaleDateString("es-AR", {
                       timeZone: "UTC",
@@ -73,27 +73,27 @@ export default function DeliveryTab({ deliveries }: Props) {
             {expandedId === del.id && (
               <div className="pt-4 mt-3 border-t border-gray-100">
                 <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
-                  <div className="bg-gray-50 p-2 rounded-lg text-center">
-                    <p className="text-xs text-gray-500 font-semibold mb-0.5">
+                  <div className="bg-gray-100 p-2 rounded-lg text-center">
+                    <p className="text-xs text-gray-600 font-semibold mb-0.5">
                       Items
                     </p>
                     <p className="font-bold text-gray-900">
                       {del.totalItems || "-"}
                     </p>
                   </div>
-                  <div className="bg-gray-50 p-2 rounded-lg text-center">
-                    <p className="text-xs text-gray-500 font-semibold mb-0.5">
+                  <div className="bg-gray-100 p-2 rounded-lg text-center">
+                    <p className="text-xs text-gray-600 font-semibold mb-0.5">
                       Peso
                     </p>
                     <p className="font-bold text-gray-900">
                       {del.totalWeight ? `${del.totalWeight}kg` : "-"}
                     </p>
                   </div>
-                  <div className="bg-gray-50 p-2 rounded-lg text-center">
-                    <p className="text-xs text-gray-500 font-semibold mb-0.5">
+                  <div className="bg-gray-100 p-2 rounded-lg text-center">
+                    <p className="text-xs text-gray-600 font-semibold mb-0.5">
                       Monto
                     </p>
-                    <p className="font-bold text-green-600">
+                    <p className="font-bold text-green-700">
                       ${del.amount || "-"}
                     </p>
                   </div>
@@ -102,7 +102,7 @@ export default function DeliveryTab({ deliveries }: Props) {
                 {/* Historial de Estados (Si existe) */}
                 {del.stateHistories && del.stateHistories.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">
+                    <p className="text-xs text-gray-600 font-bold uppercase tracking-wider mb-2">
                       Historial de Estados
                     </p>
                     <div className="space-y-2 border-l-2 border-gray-200 ml-2 pl-3">
@@ -113,7 +113,7 @@ export default function DeliveryTab({ deliveries }: Props) {
                           <p className="font-semibold text-gray-700">
                             {hist.status}
                           </p>
-                          <p className="text-gray-400">
+                          <p className="text-gray-600">
                             {hist.timestamp
                               ? new Date(hist.timestamp).toLocaleString(
                                   "es-AR",

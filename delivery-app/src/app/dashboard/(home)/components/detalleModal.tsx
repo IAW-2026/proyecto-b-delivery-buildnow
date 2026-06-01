@@ -18,7 +18,7 @@ const DetalleModal = ({
         >
           ✕
         </button>
-        <h2 className="text-xl font-bold mb-4 text-amber-900">
+        <h2 className="text-xl font-bold mb-4 text-orange-700">
           Detalles del Envío
         </h2>
 
@@ -55,19 +55,19 @@ const DetalleModal = ({
           </div>
         )}
 
-        <div className="mt-6 flex justify-end">
-          <p className="text-sm text-gray-500 mr-auto mt-2">
+        <div className="mt-6 flex justify-end gap-1 items-center">
+          <p className="text-sm text-orange-700 mr-auto mt-2">
             <strong>¿Desea aceptar este envío?</strong>
           </p>
           <button
             onClick={onAccept}
-            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base mt-auto cursor-pointer"
+            className="w-28 md:w-32 bg-orange-700 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-colors shadow-sm text-sm md:text-base cursor-pointer text-center"
           >
             Aceptar
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
+            className="w-28 md:w-32 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors cursor-pointer text-center"
           >
             Cerrar
           </button>

@@ -173,6 +173,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between p-4 max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
             <button
+              aria-label="Volver al dashboard"
               onClick={handleExit}
               className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
             >
@@ -210,7 +211,7 @@ export default function ProfilePage() {
                 }}
                 className={`flex items-center gap-2 whitespace-nowrap py-3 px-4 font-medium text-sm border-b-2 transition-colors cursor-pointer ${
                   activeTab === tab.id
-                    ? "border-orange-500 text-orange-600 bg-orange-50 rounded-t-lg"
+                    ? "border-orange-700 text-orange-700 bg-orange-50 rounded-t-lg"
                     : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-t-lg"
                 }`}
               >
@@ -233,7 +234,7 @@ export default function ProfilePage() {
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="text-orange-500 hover:text-orange-600 flex items-center gap-1 text-sm font-semibold bg-orange-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    className="text-orange-700 hover:text-orange-500 flex items-center gap-1 text-sm font-semibold bg-orange-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
                   >
                     <Edit2 className="w-4 h-4" /> Editar
                   </button>
@@ -257,10 +258,14 @@ export default function ProfilePage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Nombre
                   </label>
                   <input
+                    id="firstName"
                     type="text"
                     name="firstName"
                     value={profileData.firstName}
@@ -270,10 +275,14 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Apellido
                   </label>
                   <input
+                    id="lastName"
                     type="text"
                     name="lastName"
                     value={profileData.lastName}
@@ -284,10 +293,14 @@ export default function ProfilePage() {
                 </div>
                 <ProtectByRole allowedRoles={["delivery"]}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="vehicle-select"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Vehículo
                     </label>
                     <Select
+                      name="seleccion de vehiculo"
                       value={profileData.vehicle}
                       onValueChange={(value) =>
                         setProfileData({ ...profileData, vehicle: value })
@@ -295,6 +308,8 @@ export default function ProfilePage() {
                       disabled={!isEditing}
                     >
                       <SelectTrigger
+                        id="vehicle-select"
+                        arial-label="Seleccionar tipo de vehículo"
                         size="lg"
                         className={`w-full h-10 px-3 rounded-lg cursor-pointer ${
                           isEditing
@@ -332,10 +347,14 @@ export default function ProfilePage() {
                   </div>
                 </ProtectByRole>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Mail asociado a la cuenta
                   </label>
                   <input
+                    id="email"
                     type="text"
                     name="email"
                     value={profileData.email}

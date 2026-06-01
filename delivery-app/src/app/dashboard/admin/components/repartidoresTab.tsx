@@ -110,7 +110,14 @@ export default function RepartidoresTab({
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <label
+                      htmlFor={`status-${delivery.id}`}
+                      className="block text-sm font-medium text-slate-700"
+                    >
+                      Estado
+                    </label>
                     <select
+                      id={`status-${delivery.id}`}
                       className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm cursor-pointer"
                       value={statusMap[delivery.id]}
                       onChange={(event) =>
@@ -125,7 +132,7 @@ export default function RepartidoresTab({
                     </select>
                     <button
                       type="button"
-                      className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 cursor-pointer"
+                      className="rounded-xl bg-orange-700 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-500 cursor-pointer"
                       onClick={() => handleUpdateDeliveryStatus(delivery.id)}
                     >
                       Guardar

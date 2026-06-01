@@ -205,7 +205,7 @@ export default function HomePage() {
                 onClick={() =>
                   router.push(`/dashboard/delivery/${activeDelivery.id}`)
                 }
-                className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer shadow-sm text-sm"
+                className="w-full sm:w-auto bg-orange-700 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer shadow-sm text-sm"
               >
                 Ir al pedido
               </button>
@@ -237,7 +237,6 @@ export default function HomePage() {
                           {order.quote?.latitude && order.quote?.longitude ? (
                             <Image
                               fill
-                              unoptimized
                               src={obtenerUrlMapaEstatico({
                                 latitud: order.quote.latitude,
                                 longitud: order.quote.longitude,
@@ -246,7 +245,7 @@ export default function HomePage() {
                                 alto: 400,
                               })}
                               alt={`Mapa de ${order.storeName}`}
-                              sizes="600px"
+                              sizes="160px"
                               className="object-cover rounded-lg"
                             />
                           ) : (
@@ -287,7 +286,7 @@ export default function HomePage() {
                     <div className="flex flex-row justify-between items-center pt-2 border-t border-gray-100 md:border-0 md:pt-0 md:flex-col md:justify-between md:items-end md:shrink-0 md:space-y-4">
                       {order.quote && (
                         <div className="text-right">
-                          <p className="text-xl font-bold text-orange-500">
+                          <p className="text-xl font-bold text-orange-700">
                             ${order.quote.price}
                           </p>
                         </div>
@@ -295,7 +294,7 @@ export default function HomePage() {
 
                       <button
                         onClick={() => setSelectedOrder(order)}
-                        className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base cursor-pointer"
+                        className="bg-orange-700 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-sm text-sm md:text-base cursor-pointer"
                       >
                         Ver Detalles
                       </button>
