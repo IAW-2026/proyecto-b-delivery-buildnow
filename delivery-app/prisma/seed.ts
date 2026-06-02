@@ -9,28 +9,50 @@ async function main() {
 
   // Repartidores de prueba
   const rep1 = await prisma.repartidor.upsert({
-    where: { email: "delivery_1@gmail.com" },
+    where: {
+      clerkUserId: "user_3EPaQy8573olgQt01UdOCS17s83",
+    },
     update: {
-      clerkUserId: "user_3EPaQy8573olgQt01UdOCS17s83", // Forzar actualizacion ID de Clerk
+      email: "delivery1+clerk_test@iaw.com",
+      name: "Delivery DeliveryCuenta_1",
+      phone: "+14155552671",
+      vehicleType: "CAR",
     },
     create: {
       clerkUserId: "user_3EPaQy8573olgQt01UdOCS17s83",
-      name: "Delivery Prueba1",
-      email: "delivery_1@gmail.com",
+      name: "Delivery DeliveryCuenta_1",
+      email: "delivery1+clerk_test@iaw.com",
       phone: "+14155552671",
-      vehicleType: "MOTORBIKE",
+      vehicleType: "CAR",
       role: "DELIVERY",
     },
   });
 
   const rep2 = await prisma.repartidor.upsert({
-    where: { email: "laura.alvarez@delivery.com" },
-    update: {},
+    where: { email: "delivery2+clerk_test@iaw.com" },
+    update: {
+      clerkUserId: "user_3EYRqMKQgvlLGxfIeMO1zWJCzXM",
+    },
     create: {
-      clerkUserId: "user_clerk_rep2",
-      name: "Laura Álvarez",
-      email: "laura.alvarez@delivery.com",
-      phone: "+19183038953",
+      clerkUserId: "user_3EYRqMKQgvlLGxfIeMO1zWJCzXM",
+      name: "Delivery DeliveryCuenta_2",
+      email: "delivery2+clerk_test@iaw.com",
+      phone: "+14155552672",
+      vehicleType: "CAR",
+      role: "DELIVERY",
+    },
+  });
+
+  const rep3 = await prisma.repartidor.upsert({
+    where: { email: "delivery3+clerk_test@iaw.com" },
+    update: {
+      clerkUserId: "user_3EYRtHah4IB3yW4sZNNo1ZiJo1I",
+    },
+    create: {
+      clerkUserId: "user_3EYRtHah4IB3yW4sZNNo1ZiJo1I",
+      name: "Delivery DeliveryCuenta_3",
+      email: "delivery3+clerk_test@iaw.com",
+      phone: "+14155552673",
       vehicleType: "BICYCLE",
       role: "DELIVERY",
     },
@@ -95,13 +117,163 @@ async function main() {
     },
   });
 
-  // Simulación de una ruta en curso para el mapa del Dashboard
-  await prisma.ubication.createMany({
-    data: [
-      { deliveryId: dlv1.id, latitude: -38.7183, longitude: -62.2662 },
-      { deliveryId: dlv1.id, latitude: -38.719, longitude: -62.2675 }, // Punto intermedio
-      { deliveryId: dlv1.id, latitude: -38.7205, longitude: -62.269 }, // Ubicación actual
-    ],
+  const dlv3 = await prisma.delivery.upsert({
+    where: { orderId: "order_10125" },
+    update: {
+      delivyUserId: rep1.id,
+    },
+    create: {
+      id: "dlv_003",
+      orderId: "order_10125",
+      delivyUserId: rep1.id,
+      status: "ASSIGNED",
+      storeName: "Corralón El Constructor",
+      pickupLocation: "Donado 850, Bahía Blanca",
+      deliveryAddress: "Zelarrayán 1200, Bahía Blanca, Buenos Aires, Argentina",
+      totalItems: 8,
+      totalWeight: 12.5,
+      amount: 4500.0,
+      stateHistories: {
+        create: [
+          {
+            status: "ASSIGNED",
+            timestamp: new Date(),
+          },
+        ],
+      },
+    },
+  });
+
+  const dlv4 = await prisma.delivery.upsert({
+    where: { orderId: "order_10126" },
+    update: {
+      delivyUserId: rep1.id,
+    },
+    create: {
+      id: "dlv_004",
+      orderId: "order_10126",
+      delivyUserId: rep1.id,
+      status: "ON_THE_WAY",
+      storeName: "Pinturería Color Hogar",
+      pickupLocation: "Vieytes 420, Bahía Blanca",
+      deliveryAddress: "Estomba 1550, Bahía Blanca, Buenos Aires, Argentina",
+      totalItems: 6,
+      totalWeight: 7.2,
+      amount: 3200.0,
+      stateHistories: {
+        create: [
+          {
+            status: "ASSIGNED",
+            timestamp: new Date(Date.now() - 40 * 60000),
+          },
+          {
+            status: "ON_THE_WAY",
+            timestamp: new Date(Date.now() - 15 * 60000),
+          },
+        ],
+      },
+    },
+  });
+
+  const dlv5 = await prisma.delivery.upsert({
+    where: { orderId: "order_10127" },
+    update: {
+      delivyUserId: rep2.id,
+    },
+    create: {
+      id: "dlv_005",
+      orderId: "order_10127",
+      delivyUserId: rep2.id,
+      status: "DELIVERED",
+      storeName: "Materiales del Sur",
+      pickupLocation: "Brown 230, Bahía Blanca",
+      deliveryAddress: "Paraguay 890, Bahía Blanca, Buenos Aires, Argentina",
+      totalItems: 3,
+      totalWeight: 4.3,
+      amount: 1800.0,
+      stateHistories: {
+        create: [
+          {
+            status: "ASSIGNED",
+            timestamp: new Date(Date.now() - 90 * 60000),
+          },
+          {
+            status: "ON_THE_WAY",
+            timestamp: new Date(Date.now() - 50 * 60000),
+          },
+          {
+            status: "DELIVERED",
+            timestamp: new Date(Date.now() - 10 * 60000),
+          },
+        ],
+      },
+    },
+  });
+
+  const dlv6 = await prisma.delivery.upsert({
+    where: { orderId: "order_10128" },
+    update: {
+      delivyUserId: rep2.id,
+    },
+    create: {
+      id: "dlv_006",
+      orderId: "order_10128",
+      delivyUserId: rep2.id,
+      status: "ON_THE_WAY",
+      storeName: "TodoFerretería Bahía",
+      pickupLocation: "Av. Alem 1050, Bahía Blanca",
+      deliveryAddress: "Rondeau 1780, Bahía Blanca, Buenos Aires, Argentina",
+      totalItems: 10,
+      totalWeight: 18.0,
+      amount: 6200.0,
+      stateHistories: {
+        create: [
+          {
+            status: "ASSIGNED",
+            timestamp: new Date(Date.now() - 70 * 60000),
+          },
+          {
+            status: "ON_THE_WAY",
+            timestamp: new Date(Date.now() - 20 * 60000),
+          },
+        ],
+      },
+    },
+  });
+
+  const dlv7 = await prisma.delivery.upsert({
+    where: { orderId: "order_10129" },
+    update: {
+      delivyUserId: rep1.id,
+    },
+    create: {
+      id: "dlv_007",
+      orderId: "order_10129",
+      delivyUserId: rep1.id,
+      status: "DELIVERED",
+      storeName: "Electricidad Industrial SRL",
+      pickupLocation: "Chiclana 640, Bahía Blanca",
+      deliveryAddress: "Thompson 320, Bahía Blanca, Buenos Aires, Argentina",
+      totalItems: 5,
+      totalWeight: 9.8,
+      amount: 3900.0,
+      stateHistories: {
+        create: [
+          {
+            status: "ASSIGNED",
+            timestamp: new Date(Date.now() - 120 * 60000),
+          },
+          {
+            status: "ON_THE_WAY",
+            timestamp: new Date(Date.now() - 80 * 60000),
+          },
+          {
+            status: "DELIVERED",
+            timestamp: new Date(Date.now() - 25 * 60000),
+          },
+        ],
+      },
+    },
   });
 }
 

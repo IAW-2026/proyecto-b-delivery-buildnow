@@ -34,9 +34,77 @@ export const mockAvailableOrders = [
     status: "READY", // Agregado para poder actualizar el estado de la orden
     createdAt: new Date(Date.now() - 15 * 60000).toISOString(), // Hace 5 minutos
   },
+  {
+    id: "order_10130",
+    storeName: "Corralón El Constructor",
+    storeAddress: "Donado 850, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Zelarrayán 1200, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 12.5,
+    totalItems: 8,
+    status: "READY",
+    createdAt: new Date(Date.now() - 3 * 60000).toISOString(),
+  },
+  {
+    id: "order_10131",
+    storeName: "Ferretería Industrial Bahía",
+    storeAddress: "Vieytes 420, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Estomba 1550, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 7.2,
+    totalItems: 6,
+    status: "READY",
+    createdAt: new Date(Date.now() - 8 * 60000).toISOString(),
+  },
+  {
+    id: "order_10132",
+    storeName: "Corralón San Miguel",
+    storeAddress: "Brown 230, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Paraguay 890, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 4.3,
+    totalItems: 3,
+    status: "READY",
+    createdAt: new Date(Date.now() - 12 * 60000).toISOString(),
+  },
+  {
+    id: "order_10133",
+    storeName: "Ferretería Don Bosco",
+    storeAddress: "Av. Alem 1050, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Rondeau 1780, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 18.0,
+    totalItems: 10,
+    status: "READY",
+    createdAt: new Date(Date.now() - 18 * 60000).toISOString(),
+  },
+  {
+    id: "order_10134",
+    storeName: "Corralón La Obra",
+    storeAddress: "Chiclana 640, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Thompson 320, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 9.8,
+    totalItems: 5,
+    status: "READY",
+    createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
+  },
+  {
+    id: "order_10135",
+    storeName: "Maderera y Corralón Del Sur",
+    storeAddress: "Patricios 180, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "Mitre 740, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 15.2,
+    totalItems: 12,
+    status: "READY",
+    createdAt: new Date(Date.now() - 35 * 60000).toISOString(),
+  },
+  {
+    id: "order_10136",
+    storeName: "Corralón Los Constructores",
+    storeAddress: "Av. Colón 2200, Bahía Blanca, Buenos Aires, Argentina",
+    deliveryAddress: "11 de Abril 960, Bahía Blanca, Buenos Aires, Argentina",
+    totalWeight: 22.5,
+    totalItems: 16,
+    status: "READY",
+    createdAt: new Date(Date.now() - 50 * 60000).toISOString(),
+  },
 ];
-
-export const payoutCreated = [];
 
 // =====================================================================
 // MOCKS DE PAYMENTS APP (Pagos / Payouts)
@@ -97,7 +165,11 @@ export const generateInteractivePayoutHistory = (
   return deliveries.map((delivery) => {
     // Simulamos un cálculo de pago: $1500 base + $100 por peso (si aplica)
     // Si es uno de los deliveries de la seed o ya está entregado, el payout será COMPLETED
-    const isCompleted = delivery.id === "dlv_001" || delivery.id === "dlv_002";
+    const isCompleted =
+      delivery.id === "dlv_001" ||
+      delivery.id === "dlv_002" ||
+      delivery.id === "dlv_005" ||
+      delivery.id === "dlv_007";
 
     return {
       id: `payout_${delivery.id}`,
