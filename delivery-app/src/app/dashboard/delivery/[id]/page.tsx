@@ -61,8 +61,9 @@ export default function DeliveryPage() {
             origin: delivery.pickupLocation || "",
             destination: delivery.deliveryAddress || "",
           });
-          const vehicle =
-            (user?.publicMetadata?.vehicle as string) || "MOTORBIKE";
+          const vehicle = (
+            (user?.publicMetadata?.vehicle as string) || "MOTORBIKE"
+          ).toUpperCase();
           const response = await fetch(
             `/api/distance/${vehicle}?${params.toString()}`,
           );
