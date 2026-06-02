@@ -31,7 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.*.local
 
 # vercel
 .vercel
@@ -41,10 +43,11 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
-.env*.local
 
 # clerk configuration (can include secrets)
 /.clerk/
 
 # Prisma Client (can be regenerated with `npx prisma generate`)
 /generated
+.vercel
+generated/

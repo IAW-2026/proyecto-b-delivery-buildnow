@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -21,36 +15,55 @@ model Delivery {
   pickupLocation  String
   deliveryAddress String
   createdAt       DateTime        @default(now())
-  ubications      Ubication[]
+  storeName       String
+  totalItems      Int
+  totalWeight     Float
+  updatedAt       DateTime        @updatedAt
   stateHistories  STATE_HISTORY[]
+  amount Decimal @db.Decimal(10, 2) @default(0.00)
 }
 
 model Repartidor {
-  id          String @id
+  id          String      @id @default(uuid())
+  clerkUserId String      @unique
   name        String
+  email       String      @unique
   phone       String
-  vehicleType String
+  role        Role        @default(DELIVERY)
+  createdAt   DateTime    @default(now())
+  vehicleType VehicleType
 }
 
 model STATE_HISTORY {
   id         String         @id @default(uuid())
   deliveryId String
-  delivery   Delivery       @relation(fields: [deliveryId], references: [id])
   status     StatusDelivery
   timestamp  DateTime       @default(now())
+  delivery   Delivery       @relation(fields: [deliveryId], references: [id])
 }
 
-model Ubication {
-  id         String   @id @default(uuid())
-  deliveryId String
-  delivery   Delivery @relation(fields: [deliveryId], references: [id])
-  latitude   Float
-  longitude  Float
-  timestamp  DateTime @default(now())
+model GeocodeCache {
+  address     String @id
+  latitude    Float
+  longitude   Float
+  displayName String?
+
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  DELIVERY
+  ADMIN
 }
 
 enum StatusDelivery {
   ASSIGNED
   ON_THE_WAY
   DELIVERED
+}
+
+enum VehicleType {
+  BICYCLE
+  MOTORBIKE
+  CAR
 }
