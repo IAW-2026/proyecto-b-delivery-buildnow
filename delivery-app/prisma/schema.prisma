@@ -20,7 +20,6 @@ model Delivery {
   totalWeight     Float
   updatedAt       DateTime        @updatedAt
   stateHistories  STATE_HISTORY[]
-  ubications      Ubication[]
   amount Decimal @db.Decimal(10, 2) @default(0.00)
 }
 
@@ -43,13 +42,13 @@ model STATE_HISTORY {
   delivery   Delivery       @relation(fields: [deliveryId], references: [id])
 }
 
-model Ubication {
-  id         String   @id @default(uuid())
-  deliveryId String
-  latitude   Float
-  longitude  Float
-  timestamp  DateTime @default(now())
-  delivery   Delivery @relation(fields: [deliveryId], references: [id])
+model GeocodeCache {
+  address     String @id
+  latitude    Float
+  longitude   Float
+  displayName String?
+
+  createdAt   DateTime @default(now())
 }
 
 enum Role {
