@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Delivery {
+  id              String          @id
+  orderId         String          @unique
+  delivyUserId    String?
+  status          StatusDelivery  @default(ASSIGNED)
+  pickupLocation  String
+  deliveryAddress String
+  createdAt       DateTime        @default(now())
+  storeName       String
+  totalItems      Int
+  totalWeight     Float
+  updatedAt       DateTime        @updatedAt
+  stateHistories  STATE_HISTORY[]
+  amount Decimal @db.Decimal(10, 2) @default(0.00)
+}
+
+model Repartidor {
+  id          String      @id @default(uuid())
+  clerkUserId String      @unique
+  name        String
+  email       String      @unique
+  phone       String
+  role        Role        @default(DELIVERY)
+  createdAt   DateTime    @default(now())
+  vehicleType VehicleType
+}
+
+model STATE_HISTORY {
+  id         String         @id @default(uuid())
+  deliveryId String
+  status     StatusDelivery
+  timestamp  DateTime       @default(now())
+  delivery   Delivery       @relation(fields: [deliveryId], references: [id])
+}
+
+model GeocodeCache {
+  address     String @id
+  latitude    Float
+  longitude   Float
+  displayName String?
+
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  DELIVERY
+  ADMIN
+}
+
+enum StatusDelivery {
+  ASSIGNED
+  ON_THE_WAY
+  DELIVERED
+}
+
+enum VehicleType {
+  BICYCLE
+  MOTORBIKE
+  CAR
+}
