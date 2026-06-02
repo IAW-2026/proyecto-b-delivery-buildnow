@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { geocodeAddress } from "../../../lib/delivery/geocode";
 import { calculateRoute } from "../../../lib/delivery/routing";
 import { VehicleType } from "@prisma/client";
+import { getCachedGeocode } from "@/src/app/lib/delivery/geocahe";
+import { ORS_PROFILES } from "@/src/app/lib/delivery/vehicleMapping";
 
 export async function GET(
   request: Request,
@@ -22,8 +23,11 @@ export async function GET(
       );
     }
 
-    const originCoords = await geocodeAddress(origin);
-    const destinationCoords = await geocodeAddress(destination);
+    const originCoords = await getCachedGeocode(origin);
+    const destinationCoords = await getCachedGeocode(destination);
+
+    console.log("vehicle recibido:", vehicle);
+    console.log("profile:", ORS_PROFILES[vehicle as VehicleType]);
 
     const route = await calculateRoute(
       originCoords.lat,
