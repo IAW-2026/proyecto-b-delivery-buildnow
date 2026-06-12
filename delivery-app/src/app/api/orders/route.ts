@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { mockAvailableOrders } from "../../lib/mockdata";
+import { headers } from "next/headers";
 import { prisma } from "@/src/app/lib/prisma";
 
 export async function GET(request: Request) {
@@ -7,10 +7,28 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
 
-    const allOrders = mockAvailableOrders;
+    // Llamada a la API real de la Seller App
+    const baseUrl = process.env.SELLER_API_URL;
+    const sellerApiUrl = new URL(`${baseUrl}/api/orders`);
+    if (status) {
+      sellerApiUrl.searchParams.append("status", status);
+    }
 
-    // const res = await fetch(`<https://api.seller-app.com/orders?status=${status}>`);
-    // const allOrders = await res.json();
+    const requestHeaders = await headers();
+    const cookieHeader = requestHeaders.get("cookie") || "";
+    const authHeader = requestHeaders.get("authorization") || "";
+
+    const res = await fetch(sellerApiUrl.toString(), {
+      headers: {
+        Cookie: cookieHeader,
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Falló la petición a la Seller App: ${res.statusText}`);
+    }
+    const allOrders = await res.json();
 
     // Como no hay estado ASSIGNED en la app Seller App, simulamos que las órdenes que ya están tomadas
     // por repartidores en nuestra BD no aparecen como disponibles para tomar.
@@ -35,7 +53,6 @@ export async function GET(request: Request) {
     const filteredOrders = status
       ? availableOrders.filter((order) => order.status === status)
       : availableOrders;
-
     return NextResponse.json(filteredOrders, { status: 200 });
   } catch (error) {
     console.error("Error al obtener las órdenes disponibles:", error);

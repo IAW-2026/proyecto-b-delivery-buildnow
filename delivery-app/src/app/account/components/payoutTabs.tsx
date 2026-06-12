@@ -21,6 +21,7 @@ export default function PayoutTabs({ payouts, earnings }: Props) {
       </p>
     );
   }
+  const payoutsList = payouts && Array.isArray(payouts) ? payouts : [];
 
   if (earnings.length === 0) {
     return (
@@ -55,7 +56,7 @@ export default function PayoutTabs({ payouts, earnings }: Props) {
           </p>
         </div>
       ))}
-      {payouts.map((p) => (
+      {payoutsList.map((p) => (
         <div
           key={p.id}
           className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between"

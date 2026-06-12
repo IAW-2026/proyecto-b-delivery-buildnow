@@ -1,51 +1,54 @@
 import { NextResponse } from "next/server";
-import {
-  generateMockPayoutCreated,
-  generateInteractivePayoutHistory,
-} from "../../../lib/mockdata";
-import { prisma } from "../../../lib/prisma";
+import { headers } from "next/headers";
 
-export async function POST(request: Request) {
+export async function PATCH(request: Request) {
   try {
     // 1. Extraer los datos del cuerpo de la petición (body)
     const body = await request.json();
-    const { orderId, recipientId, recipientType, amount } = body;
+    const { orderId, recipientType } = body;
 
     // 2. Validaciones básicas para asegurarnos de que el frontend envía todo lo necesario
-    if (!orderId || !recipientId || !recipientType || amount === undefined) {
+    if (!orderId || !recipientType) {
       return NextResponse.json(
         {
-          error:
-            "Faltan campos obligatorios: orderId, recipientId, recipientType o amount.",
+          error: "Faltan campos obligatorios: orderId o recipientType.",
         },
         { status: 400 },
       );
     }
 
-    // =====================================================================
-    // IMPLEMENTACIÓN FUTURA (Llamada real a la aplicación de Payments)
-    // =====================================================================
-    // const response = await fetch('/api/payments/payouts', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ orderId, recipientId, recipientType, amount })
-    // });
-    // if (!response.ok) throw new Error('Error al registrar el payout en la app externa');
-    // const data = await response.json();
-    // return NextResponse.json(data, { status: 201 });
+    // Llamada real a la aplicación de Payments
+    const baseUrl = process.env.PAYMENT_API_URL;
+    const apiUrl = `${baseUrl}/api/payments/payouts`;
 
-    // =====================================================================
-    // MOCK ACTUAL (Simulación para avanzar con el frontend del repartidor)
-    // =====================================================================
+    const requestHeaders = await headers();
+    const cookieHeader = requestHeaders.get("cookie") || "";
+    const authHeader = requestHeaders.get("authorization") || "";
 
-    const mockResponse = generateMockPayoutCreated(
-      orderId,
-      recipientId,
-      recipientType,
-      amount,
-    );
+    const response = await fetch(apiUrl, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+        Authorization: authHeader,
+      },
+      body: JSON.stringify({ orderId, recipientType }),
+    });
 
-    return NextResponse.json(mockResponse, { status: 201 });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        {
+          error:
+            errorData.error ||
+            `Error al registrar el payout: ${response.statusText}`,
+        },
+        { status: response.status },
+      );
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: 201 });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
@@ -61,52 +64,51 @@ export async function GET(request: Request) {
   try {
     // Extraemos los query parameters de la URL
     const { searchParams } = new URL(request.url);
-    const recipientId = searchParams.get("recipientId");
     const recipientType = searchParams.get("recipientType");
 
     // Validación básica
-    if (!recipientId || !recipientType) {
+    if (!recipientType) {
       return NextResponse.json(
         {
-          error:
-            "Faltan los parámetros de consulta: recipientId o recipientType.",
+          error: "Falta el parámetro de consulta: recipientType.",
         },
         { status: 400 },
       );
     }
 
-    // =====================================================================
-    // IMPLEMENTACIÓN FUTURA (Llamada real a la aplicación de Payments)
-    // =====================================================================
-    // const response = await fetch(`/api/payments/payouts?recipientId={id}&recipientType={type}`);
-    // if (!response.ok) throw new Error('Error al obtener el historial de payouts');
-    // const data = await response.json();
-    // return NextResponse.json(data, { status: 200 });
+    // Llamada real a la aplicación de Payments
+    const baseUrl = process.env.PAYMENT_API_URL;
+    const paymentsApiUrl = new URL(`${baseUrl}/api/payments/payouts`);
 
-    // =====================================================================
-    // MOCK ACTUAL (Para poder avanzar con tu Frontend del repartidor)
-    // =====================================================================
+    paymentsApiUrl.searchParams.append("recipientType", recipientType);
 
-    const repartidor = await prisma.repartidor.findFirst({
-      where: { clerkUserId: recipientId },
-    });
+    const requestHeaders = await headers();
+    const cookieHeader = requestHeaders.get("cookie") || "";
+    const authHeader = requestHeaders.get("authorization") || "";
 
-    const deliveries = await prisma.delivery.findMany({
-      where: {
-        OR: [
-          { delivyUserId: recipientId },
-          ...(repartidor ? [{ delivyUserId: repartidor.id }] : []),
-        ],
+    const response = await fetch(paymentsApiUrl.toString(), {
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+        Authorization: authHeader,
       },
     });
 
-    const mockPayouts = generateInteractivePayoutHistory(
-      deliveries,
-      recipientId,
-      recipientType,
-    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        {
+          error:
+            errorData.error ||
+            `Error al obtener el historial de payouts: ${response.statusText}`,
+        },
+        { status: response.status },
+      );
+    }
 
-    return NextResponse.json(mockPayouts, { status: 200 });
+    const data = await response.json();
+    console.log("¿Qué formato tienen los payouts de mi compañero?:", data);
+    return NextResponse.json(data, { status: 200 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error al consultar los payouts:", error);
