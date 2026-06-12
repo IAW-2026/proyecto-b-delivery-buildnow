@@ -46,12 +46,14 @@ export async function GET(request: Request) {
     );
 
     const availableOrders = allOrders.filter(
-      (order) => !takenOrderIds.has(order.id),
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (order: any) => !takenOrderIds.has(order.id),
     );
 
     // Buscamos ordenes con status especificado
     const filteredOrders = status
-      ? availableOrders.filter((order) => order.status === status)
+      ? //eslint-disable-next-line @typescript-eslint/no-explicit-any
+        availableOrders.filter((order: any) => order.status === status)
       : availableOrders;
     return NextResponse.json(filteredOrders, { status: 200 });
   } catch (error) {
