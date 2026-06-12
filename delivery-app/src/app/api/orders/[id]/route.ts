@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { mockAvailableOrders } from "../../../lib/mockdata";
 
 export async function PATCH(
   request: Request,
@@ -19,27 +18,32 @@ export async function PATCH(
       );
     }
 
-    // Buscamos la orden en nuestros datos simulados (mocks)
-    const orderIndex = mockAvailableOrders.findIndex((o) => o.id === orderId);
+    // Llamada a la API real de la Seller App
+    const baseUrl = process.env.SELLER_API_URL;
+    const sellerApiUrl = `${baseUrl}/api/orders/${orderId}`;
+    const res = await fetch(sellerApiUrl, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
 
-    if (orderIndex === -1) {
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
       return NextResponse.json(
-        { error: "No se encontró la orden especificada en los mocks." },
-        { status: 404 },
+        {
+          error:
+            errorData.error ||
+            `Falló la actualización en Seller App: ${res.statusText}`,
+        },
+        { status: res.status },
       );
     }
 
-    // Actualizamos el estado de la orden en el mock
-    mockAvailableOrders[orderIndex].status = status;
+    const updatedOrder = await res.json();
 
-    return NextResponse.json(
-      {
-        id: orderId,
-        status: status,
-        updatedAt: new Date().toISOString(),
-      },
-      { status: 200 },
-    );
+    return NextResponse.json(updatedOrder, { status: 200 });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

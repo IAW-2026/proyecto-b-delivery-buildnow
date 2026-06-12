@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
-import {
-  generateMockEarnings,
-  generateInteractivePayoutHistory,
-} from "../../../lib/mockdata";
-import { prisma } from "../../../lib/prisma";
+import { headers } from "next/headers";
 
 export async function GET(request: Request) {
   try {
     // Extraemos los query parameters de la petición
     const { searchParams } = new URL(request.url);
-    const recipientId = searchParams.get("recipientId");
     const recipientType = searchParams.get("recipientType");
 
     // Validación básica
-    if (!recipientId || !recipientType) {
+    if (!recipientType) {
       return NextResponse.json(
         {
           error: "Falta el parámetro de consulta: recipientId o recipientType.",
@@ -21,46 +16,42 @@ export async function GET(request: Request) {
         { status: 400 },
       );
     }
-    // =====================================================================
-    // IMPLEMENTACIÓN FUTURA (Llamada real a la aplicación de Payments)
-    // =====================================================================
-    // const response = await fetch(`/api/payments/earnings?recipientId={id}&recipientType={type}`);
-    // if (!response.ok) throw new Error('Error al obtener las ganancias del delivery');
-    // const data = await response.json();
-    // return NextResponse.json(data, { status: 200 });
 
-    // =====================================================================
-    // MOCK ACTUAL (Simulación para avanzar con tu Frontend del repartidor)
-    // =====================================================================
+    // Llamada real a la API de Payments
+    const baseUrl = process.env.PAYMENT_API_URL;
+    const paymentsApiUrl = new URL(`${baseUrl}/api/payments/earnings`);
 
-    const repartidor = await prisma.repartidor.findFirst({
-      where: { clerkUserId: recipientId },
-    });
+    paymentsApiUrl.searchParams.append(
+      "recipientType",
+      recipientType.toLowerCase(),
+    );
 
-    if (!repartidor) {
-      const mockEarnings = generateMockEarnings(recipientId, recipientType, []);
-      return NextResponse.json(mockEarnings, { status: 200 });
-    }
+    const requestHeaders = await headers();
+    const cookieHeader = requestHeaders.get("cookie") || "";
+    const authHeader = requestHeaders.get("authorization") || "";
 
-    const deliveries = await prisma.delivery.findMany({
-      where: {
-        delivyUserId: repartidor.id,
+    const response = await fetch(paymentsApiUrl.toString(), {
+      headers: {
+        Cookie: cookieHeader,
+        Authorization: authHeader,
+        "Content-Type": "application/json",
       },
     });
 
-    const mockPayouts = generateInteractivePayoutHistory(
-      deliveries,
-      recipientId,
-      recipientType,
-    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        {
+          error:
+            errorData.error ||
+            `Error al obtener las ganancias: ${response.statusText}`,
+        },
+        { status: response.status },
+      );
+    }
 
-    const mockEarnings = generateMockEarnings(
-      recipientId,
-      recipientType,
-      mockPayouts,
-    );
-
-    return NextResponse.json(mockEarnings, { status: 200 });
+    const data = await response.json();
+    return NextResponse.json(data, { status: 200 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error al consultar las ganancias del delivery:", error);
