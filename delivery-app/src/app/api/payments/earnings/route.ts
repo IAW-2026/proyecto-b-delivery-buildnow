@@ -51,7 +51,8 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data, { status: 200 });
+    const normalizedData = data?.data ?? data;
+    return NextResponse.json(normalizedData, { status: 200 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error al consultar las ganancias del delivery:", error);

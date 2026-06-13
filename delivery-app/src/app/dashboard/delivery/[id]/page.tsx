@@ -95,14 +95,12 @@ export default function DeliveryPage() {
       if (newStatus === "DELIVERED") {
         // Solicitamos la creación del payout
         await fetch("/api/payments/payouts", {
-          method: "POST",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             orderId: (delivery as any)?.orderId || id,
-            recipientId: user?.id,
             recipientType: "DELIVERY",
-            amount: delivery?.amount || 0, // Monto de pago simulado
           }),
         });
 
