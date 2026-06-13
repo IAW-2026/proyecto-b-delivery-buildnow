@@ -51,6 +51,14 @@ model GeocodeCache {
   createdAt   DateTime @default(now())
 }
 
+model Quote {
+  orderId         String   @unique
+  storeAddress    String
+  deliveryAddress String
+  amount          Decimal  @db.Decimal(10, 2)
+  createdAt       DateTime @default(now())
+}
+
 enum Role {
   DELIVERY
   ADMIN

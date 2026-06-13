@@ -57,3 +57,11 @@ export const STATUS_OPTIONS: StatusDelivery[] = [
 ];
 
 export const VEHICLE_OPTIONS: VehicleType[] = ["BICYCLE", "MOTORBIKE", "CAR"];
+
+export const APP_ROLES = {
+  BUYER: "buyer",
+  DELIVERY: "delivery",
+  SELLER: "seller",
+  ADMIN: "admin",
+  PAYMENTS: "payments",
+} as const;
