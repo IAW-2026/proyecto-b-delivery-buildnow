@@ -3,11 +3,9 @@ import { headers } from "next/headers";
 
 export async function PATCH(request: Request) {
   try {
-    // 1. Extraer los datos del cuerpo de la petición (body)
     const body = await request.json();
     const { orderId, recipientType } = body;
 
-    // 2. Validaciones básicas para asegurarnos de que el frontend envía todo lo necesario
     if (!orderId || !recipientType) {
       return NextResponse.json(
         {
@@ -107,8 +105,9 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    console.log("¿Qué formato tienen los payouts de mi compañero?:", data);
-    return NextResponse.json(data, { status: 200 });
+    const normalizedData = data?.data ?? data;
+
+    return NextResponse.json(normalizedData, { status: 200 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error al consultar los payouts:", error);

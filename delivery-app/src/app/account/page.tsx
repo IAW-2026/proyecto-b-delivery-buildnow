@@ -79,9 +79,8 @@ export default function ProfilePage() {
       if (!user) return;
       try {
         if (activeTab === "payouts") {
-          // Llamada real a tu API de Payouts (que actualmente devuelve mocks)
           const resPayout = await fetch(
-            `/api/payments/payouts?recipientId=${user.id}&recipientType=DELIVERY`,
+            `/api/payments/payouts?recipientType=DELIVERY`,
           );
           if (resPayout.ok) {
             const data = await resPayout.json();
@@ -89,7 +88,7 @@ export default function ProfilePage() {
           }
 
           const resEarnings = await fetch(
-            `/api/payments/earnings?recipientId=${user.id}&recipientType=DELIVERY`,
+            `/api/payments/earnings?recipientType=DELIVERY`,
           );
           if (resEarnings.ok) {
             const data = await resEarnings.json();

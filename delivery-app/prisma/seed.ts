@@ -211,14 +211,15 @@ async function main() {
   });
 
   const dlv6 = await prisma.delivery.upsert({
-    where: { orderId: "order_10128" },
+    where: { id: "dlv_006" },
     update: {
-      delivyUserId: rep2.id,
+      delivyUserId: rep1.id,
+      orderId: "cf0f9364-f4c3-4fe7-ad5e-81c2e5e63489",
     },
     create: {
       id: "dlv_006",
-      orderId: "order_10128",
-      delivyUserId: rep2.id,
+      orderId: "cf0f9364-f4c3-4fe7-ad5e-81c2e5e63489",
+      delivyUserId: rep1.id,
       status: "ON_THE_WAY",
       storeName: "TodoFerretería Bahía",
       pickupLocation: "Av. Alem 1050, Bahía Blanca",
