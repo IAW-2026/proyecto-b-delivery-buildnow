@@ -63,6 +63,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const deliveryId = searchParams.get("deliveryId");
     const userId = searchParams.get("userId");
+    const orderId = searchParams.get("orderId");
     const status = searchParams.get("status");
 
     if (deliveryId) {
@@ -76,6 +77,19 @@ export async function GET(request: Request) {
         );
       }
       return NextResponse.json(delivery, { status: 200 });
+    }
+
+    if (orderId) {
+      const delivery = await prisma.delivery.findUnique({
+        where: { orderId: orderId },
+      });
+      if (!delivery) {
+        return NextResponse.json(
+          { error: "No se encontró el delivery para este orderId." },
+          { status: 404 },
+        );
+      }
+      return NextResponse.json({ amount: delivery.amount }, { status: 200 });
     }
 
     if (userId) {
@@ -100,7 +114,10 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "Faltan parámetros: debe proporcionar deliveryId o userId." },
+      {
+        error:
+          "Faltan parámetros: debe proporcionar deliveryId, userId o orderId.",
+      },
       { status: 400 },
     );
 
