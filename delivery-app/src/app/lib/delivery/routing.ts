@@ -18,6 +18,7 @@ export async function calculateRoute(
   vehicle: VehicleType,
 ): Promise<RouteResult> {
   const apiKey = process.env.OPENROUTESERVICE_KEY;
+  vehicle = "CAR"; // Forzamos a CAR para evitar problemas a las otras aplicaciones. Agrega complejidad de más tener distintos tipos de montos para el mismo delivery.
   const profile = ORS_PROFILES[vehicle];
   const url = `https://api.openrouteservice.org/v2/directions/${profile}`;
 
