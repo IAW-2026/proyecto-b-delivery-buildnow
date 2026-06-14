@@ -11,6 +11,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/geocode", // Por seguridad, aseguramos que la ruta base exacta sea pública
   "/api/distance/(.*)", // Endpoint de cálculo de distancia (si quieres que sea público)
   "/account/security(.*)",
+  "/api/delivery/quote(.*)", // Endpoint de cotización de delivery
+  "/api/orders/(.*)/tracking", // Endpoint para el tracking de órdenes con ID dinámico
 ]);
 
 // Generamos el middleware de Clerk y lo guardamos en una constante
