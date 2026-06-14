@@ -109,7 +109,7 @@ async function getQuoteForDelivery(request: Request) {
   return NextResponse.json({
     distanceKm: route.distanceKm,
     durationMinutes: route.durationMinutes,
-    price,
+    amount: price,
     latitude: pickup.lat,
     longitude: pickup.lon,
   });
@@ -161,10 +161,6 @@ async function getQuoteFromAddresses(request: Request) {
   });
 
   return NextResponse.json({
-    distanceKm: route.distanceKm,
-    durationMinutes: route.durationMinutes,
-    price,
-    latitude: pickup.lat,
-    longitude: pickup.lon,
+    amount: price,
   });
 }
