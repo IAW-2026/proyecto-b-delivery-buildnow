@@ -44,7 +44,14 @@ export async function GET(request: Request) {
     }
 
     // Extraemos el rol directamente desde los metadatos seguros del token
-    const role = sessionClaims?.metadata?.role as string | undefined;
+    const safeSessionClaims = sessionClaims as
+      | {
+          metadata?: {
+            role?: string;
+          };
+        }
+      | undefined;
+    const role = safeSessionClaims?.metadata?.role;
 
     if (
       !role ||
