@@ -14,7 +14,7 @@ export type OrderWithQuote = Order & {
   quote?: {
     distanceKm: number;
     durationMinutes: number;
-    price: number;
+    amount: number;
     latitude: number;
     longitude: number;
   };
