@@ -9,9 +9,29 @@ import { APP_ROLES } from "@/src/types";
 
 export async function GET(request: Request) {
   try {
+    // Debug: log incoming Authorization header for troubleshooting external apps
+    const authHeader =
+      request.headers.get("authorization") ??
+      request.headers.get("Authorization");
+    console.log("[quote.route] Authorization header:", authHeader);
+
     const { sessionClaims, userId } = await auth();
+    console.log("[quote.route] Clerk auth result:", { userId, sessionClaims });
 
     if (!userId) {
+      // If caller added ?debug=1 return extra debug info (do not enable in production)
+      const { searchParams } = new URL(request.url);
+      if (searchParams.get("debug") === "1") {
+        return NextResponse.json(
+          {
+            error: "No autorizado. Debes iniciar sesión.",
+            authHeader,
+            sessionClaims,
+          },
+          { status: 401 },
+        );
+      }
+
       return NextResponse.json(
         { error: "No autorizado. Debes iniciar sesión." },
         { status: 401 },
