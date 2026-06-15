@@ -22,7 +22,7 @@ export function useSortedOrders<T extends OrderWithQuote>(initialOrders: T[]) {
         case "weight":
           return b.totalWeight - a.totalWeight; // Cargas pesadas primero
         case "amount":
-          return (b.quote?.price || 0) - (a.quote?.price || 0); // Mayor pago primero
+          return (b.quote?.amount || 0) - (a.quote?.amount || 0); // Mayor pago primero
         case "light":
           return a.totalWeight - b.totalWeight; // Cargas livianas primero
         default:

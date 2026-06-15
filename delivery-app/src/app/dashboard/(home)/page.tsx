@@ -111,7 +111,7 @@ export default function HomePage() {
           deliveryAddress: order.deliveryAddress,
           totalItems: order.totalItems,
           totalWeight: order.totalWeight,
-          amount: order.quote?.price,
+          amount: order.quote?.amount,
         }),
       });
 
@@ -287,7 +287,7 @@ export default function HomePage() {
                       {order.quote && (
                         <div className="text-right">
                           <p className="text-xl font-bold text-orange-700">
-                            ${order.quote.price}
+                            ${order.quote.amount}
                           </p>
                         </div>
                       )}
