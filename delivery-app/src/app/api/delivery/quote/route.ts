@@ -8,14 +8,19 @@ import { auth } from "@clerk/nextjs/server";
 import { APP_ROLES } from "@/src/types";
 
 export async function GET(request: Request) {
+  const authHeader =
+    request.headers.get("authorization") ??
+    request.headers.get("Authorization");
+  let sessionClaims: unknown;
+  let userId: string | null | undefined;
+
   try {
     // Debug: log incoming Authorization header for troubleshooting external apps
-    const authHeader =
-      request.headers.get("authorization") ??
-      request.headers.get("Authorization");
     console.log("[quote.route] Authorization header:", authHeader);
 
-    const { sessionClaims, userId } = await auth();
+    const authResult = await auth();
+    sessionClaims = authResult.sessionClaims;
+    userId = authResult.userId;
     console.log("[quote.route] Clerk auth result:", { userId, sessionClaims });
 
     if (!userId) {
@@ -54,6 +59,7 @@ export async function GET(request: Request) {
       );
     }
 
+    console.log("[quote.route] role:", role);
     if (role === APP_ROLES.PAYMENTS || role === APP_ROLES.ADMIN) {
       return await getQuoteFromOrderId(request);
     }
@@ -67,7 +73,22 @@ export async function GET(request: Request) {
       return await getQuoteForDelivery(request);
     }
   } catch (error) {
-    console.error(error);
+    console.error("[quote.route] uncaught error", error);
+    const { searchParams } = new URL(request.url);
+    if (searchParams.get("debug") === "1") {
+      return NextResponse.json(
+        {
+          error: "Error cotizando envío",
+          detail:
+            error instanceof Error ? error.message : JSON.stringify(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          authHeader,
+          sessionClaims,
+        },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json(
       { error: "Error cotizando envío" },
       { status: 500 },
@@ -79,25 +100,56 @@ async function getQuoteFromOrderId(request: Request) {
   const { searchParams } = new URL(request.url);
   const orderId = searchParams.get("orderId");
 
+  console.log("[quote.route] getQuoteFromOrderId orderId:", orderId);
+
   if (!orderId) {
     return NextResponse.json({ error: "Falta el orderId" }, { status: 400 });
   }
 
-  const savedQuote = await prisma.quote.findUnique({
-    where: { orderId },
-  });
-  if (!savedQuote) {
+  try {
+    const savedQuote = await prisma.quote.findUnique({
+      where: { orderId },
+    });
+
+    console.log("[quote.route] getQuoteFromOrderId savedQuote:", savedQuote);
+
+    if (!savedQuote) {
+      return NextResponse.json(
+        {
+          error: "No se encontró la cotización para el orderId proporcionado.",
+        },
+        { status: 404 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "No se encontró la cotización para el orderId proporcionado." },
-      { status: 404 },
+      {
+        amount:
+          savedQuote.amount instanceof Object &&
+          typeof savedQuote.amount.toNumber === "function"
+            ? savedQuote.amount.toNumber()
+            : savedQuote.amount,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("[quote.route] getQuoteFromOrderId error", error);
+    if (searchParams.get("debug") === "1") {
+      return NextResponse.json(
+        {
+          error: "Error leyendo cotización de orderId",
+          detail:
+            error instanceof Error ? error.message : JSON.stringify(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json(
+      { error: "Error cotizando envío" },
+      { status: 500 },
     );
   }
-  return NextResponse.json(
-    {
-      amount: savedQuote.amount,
-    },
-    { status: 200 },
-  );
 }
 
 // La temporalmente aunque sea codigo repetido, es hasta confirmar que la comunicación entre las apps funciona bien, luego se puede refactorizar
