@@ -18,8 +18,15 @@ export async function GET(request: Request) {
       );
     }
 
-    // Extraemos el rol directamente desde los metadatos seguros del token
-    const role = sessionClaims?.metadata?.role as string | undefined;
+    const role = (
+      sessionClaims as
+        | {
+            metadata?: {
+              role?: string;
+            };
+          }
+        | undefined
+    )?.metadata?.role;
 
     if (
       !role ||
@@ -46,6 +53,11 @@ export async function GET(request: Request) {
     if (role === APP_ROLES.DELIVERY || role === APP_ROLES.ADMIN) {
       return await getQuoteForDelivery(request);
     }
+
+    return NextResponse.json(
+      { error: "No autorizado. Debes tener un rol válido." },
+      { status: 403 },
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -63,29 +75,44 @@ async function getQuoteFromOrderId(request: Request) {
     return NextResponse.json({ error: "Falta el orderId" }, { status: 400 });
   }
 
-  const savedQuote = await prisma.quote.findUnique({
-    where: { orderId },
-  });
-  if (!savedQuote) {
+  try {
+    const savedQuote = await prisma.quote.findUnique({
+      where: { orderId },
+    });
+
+    if (!savedQuote) {
+      return NextResponse.json(
+        {
+          error: "No se encontró la cotización para el orderId proporcionado.",
+        },
+        { status: 404 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "No se encontró la cotización para el orderId proporcionado." },
-      { status: 404 },
+      {
+        amount:
+          savedQuote.amount instanceof Object &&
+          typeof savedQuote.amount.toNumber === "function"
+            ? savedQuote.amount.toNumber()
+            : savedQuote.amount,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Error cotizando envío" },
+      { status: 500 },
     );
   }
-  return NextResponse.json(
-    {
-      amount: savedQuote.amount,
-    },
-    { status: 200 },
-  );
 }
 
-// La temporalmente aunque sea codigo repetido, es hasta confirmar que la comunicación entre las apps funciona bien, luego se puede refactorizar
 async function getQuoteForDelivery(request: Request) {
   const { searchParams } = new URL(request.url);
   const storeAddress = searchParams.get("storeAddress");
   const deliveryAddress = searchParams.get("deliveryAddress");
-  const vehicle = "CAR"; // Forzamos a CAR para evitar problemas a las otras aplicaciones. Agrega complejidad de más tener distintos tipos de montos para el mismo delivery.
+  const vehicle = "CAR";
 
   if (!storeAddress || !deliveryAddress) {
     return NextResponse.json(
@@ -143,10 +170,7 @@ async function getQuoteFromAddresses(request: Request) {
     vehicle as VehicleType,
   );
   const price = calculateDeliveryFee(route.distanceKm);
-  // Guardamos la cotización en la base de datos para futuras consultas.
-  // Si la base de datos no está disponible (entorno local sin migraciones,
-  // o credenciales incorrectas) no queremos hacer fallar la petición al
-  // cliente: registramos el error y continuamos devolviendo el monto.
+
   try {
     await prisma.quote.upsert({
       where: { orderId },
@@ -163,7 +187,7 @@ async function getQuoteFromAddresses(request: Request) {
       },
     });
   } catch (dbError) {
-    console.error("Error guardando cotización en BD:", dbError);
+    console.error(dbError);
   }
 
   return NextResponse.json({
