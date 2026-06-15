@@ -9,7 +9,7 @@ import { APP_ROLES } from "@/src/types";
 
 export async function GET(request: Request) {
   try {
-    const { userId, sessionClaims } = await auth();
+    const { sessionClaims, userId } = await auth();
 
     if (!userId) {
       return NextResponse.json(
@@ -143,22 +143,28 @@ async function getQuoteFromAddresses(request: Request) {
     vehicle as VehicleType,
   );
   const price = calculateDeliveryFee(route.distanceKm);
-
-  // Guardamos la cotización en la base de datos para futuras consultas
-  await prisma.quote.upsert({
-    where: { orderId },
-    update: {
-      storeAddress,
-      deliveryAddress,
-      amount: price,
-    },
-    create: {
-      orderId,
-      storeAddress,
-      deliveryAddress,
-      amount: price,
-    },
-  });
+  // Guardamos la cotización en la base de datos para futuras consultas.
+  // Si la base de datos no está disponible (entorno local sin migraciones,
+  // o credenciales incorrectas) no queremos hacer fallar la petición al
+  // cliente: registramos el error y continuamos devolviendo el monto.
+  try {
+    await prisma.quote.upsert({
+      where: { orderId },
+      update: {
+        storeAddress,
+        deliveryAddress,
+        amount: price,
+      },
+      create: {
+        orderId,
+        storeAddress,
+        deliveryAddress,
+        amount: price,
+      },
+    });
+  } catch (dbError) {
+    console.error("Error guardando cotización en BD:", dbError);
+  }
 
   return NextResponse.json({
     amount: price,
