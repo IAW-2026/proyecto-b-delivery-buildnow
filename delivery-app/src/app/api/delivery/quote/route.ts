@@ -9,6 +9,13 @@ import { APP_ROLES } from "@/src/types";
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("orderId");
+
+    if (orderId != null) {
+      return await getQuoteFromOrderId(request);
+    }
+
     const { sessionClaims, userId } = await auth();
 
     if (!userId) {
@@ -18,15 +25,20 @@ export async function GET(request: Request) {
       );
     }
 
-    const role = (
-      sessionClaims as
-        | {
-            metadata?: {
-              role?: string;
-            };
-          }
-        | undefined
-    )?.metadata?.role;
+    const role = (sessionClaims as { metadata?: { role?: string } } | undefined)
+      ?.metadata?.role;
+
+    if (
+      !role ||
+      (role !== APP_ROLES.BUYER &&
+        role !== APP_ROLES.DELIVERY &&
+        role !== APP_ROLES.ADMIN)
+    ) {
+      return NextResponse.json(
+        { error: "No autorizado. Rol no permitido." },
+        { status: 403 },
+      );
+    }
 
     if (role === APP_ROLES.BUYER || role === APP_ROLES.ADMIN) {
       return await getQuoteFromAddresses(request);
@@ -35,9 +47,6 @@ export async function GET(request: Request) {
     if (role === APP_ROLES.DELIVERY || role === APP_ROLES.ADMIN) {
       return await getQuoteForDelivery(request);
     }
-
-    // Caso payments (en esta app no se inicia sesión)
-    return await getQuoteFromOrderId(request);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
