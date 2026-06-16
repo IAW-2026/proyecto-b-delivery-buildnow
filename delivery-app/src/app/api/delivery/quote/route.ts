@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get("orderId");
 
-    if (orderId != null) {
+    if (orderId != null && request.headers.get("X-API-KEY")) {
       return await getQuoteFromOrderId(request);
     }
 
