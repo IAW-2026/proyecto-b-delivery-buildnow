@@ -28,21 +28,6 @@ export async function GET(request: Request) {
         | undefined
     )?.metadata?.role;
 
-    if (
-      !role ||
-      (role !== APP_ROLES.DELIVERY &&
-        role !== APP_ROLES.ADMIN &&
-        role !== APP_ROLES.BUYER)
-    ) {
-      return NextResponse.json(
-        { error: "No autorizado. Debes tener un rol válido." },
-        { status: 403 },
-      );
-    } else {
-      // Caso payments (en esta app no se inicia sesión)
-      return await getQuoteFromOrderId(request);
-    }
-
     if (role === APP_ROLES.BUYER || role === APP_ROLES.ADMIN) {
       return await getQuoteFromAddresses(request);
     }
@@ -50,6 +35,9 @@ export async function GET(request: Request) {
     if (role === APP_ROLES.DELIVERY || role === APP_ROLES.ADMIN) {
       return await getQuoteForDelivery(request);
     }
+
+    // Caso payments (en esta app no se inicia sesión)
+    return await getQuoteFromOrderId(request);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
