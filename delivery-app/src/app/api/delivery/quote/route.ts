@@ -9,6 +9,13 @@ import { APP_ROLES } from "@/src/types";
 
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("orderId");
+
+    if (orderId != null && request.headers.get("X-API-KEY")) {
+      return await getQuoteFromOrderId(request);
+    }
+
     const { sessionClaims, userId } = await auth();
 
     if (!userId) {
@@ -18,34 +25,21 @@ export async function GET(request: Request) {
       );
     }
 
-    const role = (
-      sessionClaims as
-        | {
-            metadata?: {
-              role?: string;
-            };
-          }
-        | undefined
-    )?.metadata?.role;
+    const role = (sessionClaims as { metadata?: { role?: string } } | undefined)
+      ?.metadata?.role;
 
     if (
       !role ||
-      (role !== APP_ROLES.DELIVERY &&
-        role !== APP_ROLES.ADMIN &&
-        role !== APP_ROLES.BUYER &&
-        role !== APP_ROLES.PAYMENTS)
+      (role !== APP_ROLES.BUYER &&
+        role !== APP_ROLES.DELIVERY &&
+        role !== APP_ROLES.ADMIN)
     ) {
       return NextResponse.json(
-        { error: "No autorizado. Debes tener un rol válido." },
+        { error: "No autorizado. Rol no permitido." },
         { status: 403 },
       );
     }
 
-    if (role === APP_ROLES.PAYMENTS || role === APP_ROLES.ADMIN) {
-      return await getQuoteFromOrderId(request);
-    }
-
-    // @ts-expect-error admin puede hacer todos
     if (role === APP_ROLES.BUYER || role === APP_ROLES.ADMIN) {
       return await getQuoteFromAddresses(request);
     }
@@ -53,11 +47,6 @@ export async function GET(request: Request) {
     if (role === APP_ROLES.DELIVERY || role === APP_ROLES.ADMIN) {
       return await getQuoteForDelivery(request);
     }
-
-    return NextResponse.json(
-      { error: "No autorizado. Debes tener un rol válido." },
-      { status: 403 },
-    );
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -70,6 +59,11 @@ export async function GET(request: Request) {
 async function getQuoteFromOrderId(request: Request) {
   const { searchParams } = new URL(request.url);
   const orderId = searchParams.get("orderId");
+  const apiKey = request.headers.get("X-API-KEY");
+
+  if (apiKey !== process.env.PAYMENTS_API_KEY) {
+    return NextResponse.json({ error: "API Key inválida" }, { status: 401 });
+  }
 
   if (!orderId) {
     return NextResponse.json({ error: "Falta el orderId" }, { status: 400 });
