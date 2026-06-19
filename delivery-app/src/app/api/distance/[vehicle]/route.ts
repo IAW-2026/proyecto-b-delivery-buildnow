@@ -26,9 +26,6 @@ export async function GET(
     const originCoords = await getCachedGeocode(origin);
     const destinationCoords = await getCachedGeocode(destination);
 
-    console.log("vehicle recibido:", vehicle);
-    console.log("profile:", ORS_PROFILES[vehicle as VehicleType]);
-
     const route = await calculateRoute(
       originCoords.lat,
       originCoords.lon,
