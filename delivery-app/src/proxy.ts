@@ -13,6 +13,9 @@ const isPublicRoute = createRouteMatcher([
   "/account/security(.*)",
   "/api/delivery/quote(.*)", // Endpoint de cotización de delivery
   "/api/orders/(.*)/tracking", // Endpoint para el tracking de órdenes con ID dinámico
+  "/api/admin/(.*)", // Rutas de administración
+  "/api/delivery(.*)",
+  "/api/delivery/(.*)",
 ]);
 
 // Generamos el middleware de Clerk y lo guardamos en una constante
