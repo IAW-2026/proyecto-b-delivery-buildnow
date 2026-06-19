@@ -114,6 +114,12 @@ export default function DeliveryPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
+
+      await fetch(`/api/orders/${delivery?.orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
     } catch (error) {
       console.error("Error al actualizar estado:", error);
     }

@@ -20,10 +20,19 @@ export async function PATCH(
 
     // Llamada a la API real de la Seller App
     const baseUrl = process.env.SELLER_API_URL;
-    const sellerApiUrl = `${baseUrl}/api/orders/${orderId}`;
-    const res = await fetch(sellerApiUrl, {
+    const sellerApiUrl = new URL(`${baseUrl}/api/orders/${orderId}`);
+
+    sellerApiUrl.searchParams.append("orderId", orderId);
+
+    const requestHeaders = new Headers(request.headers);
+    const cookieHeader = requestHeaders.get("cookie") || "";
+    const authHeader = requestHeaders.get("authorization") || "";
+
+    const res = await fetch(sellerApiUrl.toString(), {
       method: "PATCH",
       headers: {
+        Cookie: cookieHeader,
+        Authorization: authHeader,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ status }),
