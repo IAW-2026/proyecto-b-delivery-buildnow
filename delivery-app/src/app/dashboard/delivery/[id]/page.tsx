@@ -174,7 +174,7 @@ export default function DeliveryPage() {
       {/* CONTENEDOR PRINCIPAL: Estructura original en fila (md:flex-row) */}
       <main className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row max-w-6xl mx-auto w-full gap-4 p-4">
         {/* Columna Izquierda: Información, Botones y Alertas. (order-2 en mobile para que baje, order-none en escritorio) */}
-        <div className="flex flex-col gap-4 w-full md:w-1/3 shrink-0 order-2 md:order-none">
+        <div className="flex flex-col gap-4 w-full md:w-1/3 shrink-0 order-2 md:order-0">
           {/* Tarjeta de Datos del Pedido */}
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-start gap-3 mb-4">
@@ -305,7 +305,7 @@ export default function DeliveryPage() {
         </div>
 
         {/* Columna Derecha: Mapa. (order-1 en mobile, order-none en escritorio) */}
-        <div className="flex-1 bg-gray-200 rounded-xl overflow-hidden border border-gray-300 w-full h-[380px] md:h-auto min-h-[380px] md:min-h-full relative shadow-sm order-1 md:order-none">
+        <div className="flex-1 bg-gray-200 rounded-xl overflow-hidden border border-gray-300 w-full h-95 md:h-auto min-h-95 md:min-h-full relative shadow-sm order-1 md:order-0">
           {delivery.pickupLocation && delivery.deliveryAddress ? (
             <iframe
               title={`Ruta desde ${delivery.pickupLocation} hasta ${delivery.deliveryAddress}`}
@@ -313,7 +313,6 @@ export default function DeliveryPage() {
               height="100%"
               style={{ border: 0 }}
               loading="lazy"
-              /* TU URL ORIGINAL CORREGIDA SIN API KEY (Se cambió el "0{" roto por "?saddr=") */
               src={`https://maps.google.com/maps?saddr=${encodeURIComponent(delivery.pickupLocation)}&daddr=${encodeURIComponent(delivery.deliveryAddress)}&output=embed`}
             ></iframe>
           ) : (
