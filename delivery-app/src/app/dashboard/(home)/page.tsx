@@ -38,7 +38,8 @@ export default function HomePage() {
       setLoading(true);
       try {
         const response = await fetch("/api/orders?status=READY");
-        const data: Order[] = await response.json();
+        const rawData: Order[] = await response.json();
+        const data: Order[] = Array.isArray(rawData) ? rawData : [];
         const enrichedOrders = await Promise.all(
           data.map(async (order) => {
             try {
