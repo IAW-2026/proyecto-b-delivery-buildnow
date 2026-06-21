@@ -171,9 +171,11 @@ export default function DeliveryPage() {
         </div>
       </header>
 
+      {/* CONTENEDOR PRINCIPAL: Estructura original en fila (md:flex-row) */}
       <main className="flex-1 min-h-0 overflow-y-auto flex flex-col md:flex-row max-w-6xl mx-auto w-full gap-4 p-4">
-        {/* Columna Izquierda: Información y Botones */}
-        <div className="flex flex-col gap-4 md:w-1/3 shrink-0">
+        {/* Columna Izquierda: Información, Botones y Alertas. (order-2 en mobile para que baje, order-none en escritorio) */}
+        <div className="flex flex-col gap-4 w-full md:w-1/3 shrink-0 order-2 md:order-none">
+          {/* Tarjeta de Datos del Pedido */}
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-start gap-3 mb-4">
               <div className="p-2 bg-orange-50 rounded-lg">
@@ -229,26 +231,33 @@ export default function DeliveryPage() {
             </div>
           </div>
 
+          {/* Tarjeta de Botones de Estado */}
           <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
             <h3 className="font-bold text-gray-900 mb-2">
               {texts.DELIVERY.deliveryPage.updateStatus}
             </h3>
-            <button
-              onClick={() => handleUpdateStatus("ON_THE_WAY")}
-              disabled={status !== "ASSIGNED"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ASSIGNED" ? "bg-orange-700 hover:bg-orange-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
-            >
-              <Truck className="w-5 h-5" />{" "}
-              {texts.DELIVERY.deliveryPage.btnOnTheWay}
-            </button>
-            <button
-              onClick={() => handleUpdateStatus("DELIVERED")}
-              disabled={status !== "ON_THE_WAY"}
-              className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${status === "ON_THE_WAY" ? "bg-green-700 hover:bg-green-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
-            >
-              <CheckCircle className="w-5 h-5" />{" "}
-              {texts.DELIVERY.deliveryPage.btnDelivered}
-            </button>
+
+            {/* flex-row en mobile; md:flex-col ESCRITORIO INTACTO */}
+            <div className="flex flex-row md:flex-col gap-3 w-full">
+              <button
+                onClick={() => handleUpdateStatus("ON_THE_WAY")}
+                disabled={status !== "ASSIGNED"}
+                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold text-sm md:text-base transition-all ${status === "ASSIGNED" ? "bg-orange-700 hover:bg-orange-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              >
+                <Truck className="w-5 h-5" />{" "}
+                {texts.DELIVERY.deliveryPage.btnOnTheWay}
+              </button>
+
+              <button
+                onClick={() => handleUpdateStatus("DELIVERED")}
+                disabled={status !== "ON_THE_WAY"}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold text-sm md:text-base transition-all ${status === "ON_THE_WAY" ? "bg-green-700 hover:bg-green-500 text-white shadow-sm hover:-translate-y-0.5 cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+              >
+                <CheckCircle className="w-5 h-5" />{" "}
+                {texts.DELIVERY.deliveryPage.btnDelivered}
+              </button>
+            </div>
+
             {status === "DELIVERED" && (
               <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-100 text-center animate-pulse">
                 <p className="text-sm text-green-700 font-semibold">
@@ -258,9 +267,9 @@ export default function DeliveryPage() {
             )}
           </div>
 
-          {/* Información de la Ruta en Vivo (Solo visible EN CAMINO) */}
+          {/* Información de la Ruta en Vivo */}
           {status === "ON_THE_WAY" && routeInfo && (
-            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm flex items-start gap-3 mt-auto md:mt-0">
+            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm flex items-start gap-3">
               <Navigation className="w-5 h-5 text-blue-500 shrink-0 mt-0.5 animate-pulse" />
               <div>
                 <h3 className="text-sm font-bold text-blue-800 mb-1">
@@ -282,7 +291,7 @@ export default function DeliveryPage() {
           )}
 
           {/* Recuadro de Seguridad Vial */}
-          <div className="bg-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm flex items-start gap-3 mt-auto md:mt-0">
+          <div className="bg-orange-100 p-4 rounded-xl border border-orange-200 shadow-sm flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-orange-700 shrink-0 mt-0.5" />
             <div>
               <h3 className="text-sm font-bold text-orange-700 mb-1">
@@ -295,8 +304,8 @@ export default function DeliveryPage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Mapa */}
-        <div className="flex-1 bg-gray-200 rounded-xl overflow-hidden border border-gray-300 min-h-100 md:min-h-full relative shadow-sm">
+        {/* Columna Derecha: Mapa. (order-1 en mobile, order-none en escritorio) */}
+        <div className="flex-1 bg-gray-200 rounded-xl overflow-hidden border border-gray-300 w-full h-[380px] md:h-auto min-h-[380px] md:min-h-full relative shadow-sm order-1 md:order-none">
           {delivery.pickupLocation && delivery.deliveryAddress ? (
             <iframe
               title={`Ruta desde ${delivery.pickupLocation} hasta ${delivery.deliveryAddress}`}
@@ -304,6 +313,7 @@ export default function DeliveryPage() {
               height="100%"
               style={{ border: 0 }}
               loading="lazy"
+              /* TU URL ORIGINAL CORREGIDA SIN API KEY (Se cambió el "0{" roto por "?saddr=") */
               src={`https://maps.google.com/maps?saddr=${encodeURIComponent(delivery.pickupLocation)}&daddr=${encodeURIComponent(delivery.deliveryAddress)}&output=embed`}
             ></iframe>
           ) : (
