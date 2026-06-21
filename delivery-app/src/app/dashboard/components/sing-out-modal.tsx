@@ -11,19 +11,26 @@ import {
 import * as React from "react";
 import { SignOutButton } from "@clerk/nextjs";
 
-export function SignOutDialog() {
+export function SignOutDialog({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
+}) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button className="cursor-pointer transition-colors hover:text-orange-700">
-          Salir
-        </button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {isOpen === undefined && (
+        <DialogTrigger asChild>
+          <button className="cursor-pointer transition-colors hover:text-orange-700">
+            Salir
+          </button>
+        </DialogTrigger>
+      )}
 
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>¿Cerrar sesión?</DialogTitle>
-
           <DialogDescription>
             Vas a salir de tu cuenta actual.
           </DialogDescription>
