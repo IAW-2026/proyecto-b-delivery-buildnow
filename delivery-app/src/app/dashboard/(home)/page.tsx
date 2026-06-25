@@ -38,7 +38,8 @@ export default function HomePage() {
       setLoading(true);
       try {
         const response = await fetch("/api/orders?status=READY");
-        const data: Order[] = await response.json();
+        const rawData: Order[] = await response.json();
+        const data: Order[] = Array.isArray(rawData) ? rawData : [];
         const enrichedOrders = await Promise.all(
           data.map(async (order) => {
             try {
@@ -132,44 +133,50 @@ export default function HomePage() {
   return (
     <div className="flex h-full min-h-0 flex-col bg-gray-50">
       <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-4xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
+        <div className="mx-auto flex flex-row items-center gap-3 px-4 py-3 max-w-4xl">
           <label
             htmlFor="ordenar-pedidos"
-            className="text-sm font-medium text-gray-600"
+            className="text-xs sm:text-sm font-medium text-gray-600 shrink-0"
           >
             Ordenar por:
           </label>
-
-          <Select
-            value={activeTab || "default"}
-            onValueChange={(value) =>
-              setActiveTab(value === "default" ? "" : value)
-            }
-          >
-            <SelectTrigger
-              id="ordenar-pedidos"
-              className=" w-55 rounded-xl border-orange-200 bg-white text-gray-700 shadow-sm transition-all hover:border-orange-400 focus:ring-2 focus:ring-orange-400 cursor-pointer"
+          <div className="w-full sm:w-55">
+            <Select
+              value={activeTab || "default"}
+              onValueChange={(value) =>
+                setActiveTab(value === "default" ? "" : value)
+              }
             >
-              <SelectValue placeholder="Orden por defecto" />
-            </SelectTrigger>
+              <SelectTrigger
+                id="ordenar-pedidos"
+                className="w-full rounded-xl border-orange-200 bg-white text-gray-700 shadow-sm transition-all hover:border-orange-400 focus:ring-2 focus:ring-orange-400 cursor-pointer text-xs sm:text-sm"
+              >
+                <SelectValue placeholder="Orden por defecto" />
+              </SelectTrigger>
 
-            <SelectContent
-              position="popper"
-              className="rounded-xl border-orange-100 shadow-lg"
-            >
-              {" "}
-              <SelectItem value="default">Orden por defecto</SelectItem>
-              {tabs.map((tab) => (
+              <SelectContent
+                position="popper"
+                align="start"
+                className="rounded-xl border-orange-100 shadow-lg"
+              >
                 <SelectItem
-                  key={tab.id}
-                  value={tab.id}
-                  className="focus:bg-orange-50 focus:text-orange-600"
+                  value="default"
+                  className="text-xs sm:text-sm focus:bg-orange-50 focus:text-orange-600"
                 >
-                  {tab.label}
+                  Orden por defecto
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                {tabs.map((tab) => (
+                  <SelectItem
+                    key={tab.id}
+                    value={tab.id}
+                    className="text-xs sm:text-sm focus:bg-orange-50 focus:text-orange-600"
+                  >
+                    {tab.label}
+                  </SelectItem>
+                ))}{" "}
+              </SelectContent>
+            </Select>
+          </div>{" "}
         </div>
       </div>
 
@@ -182,7 +189,7 @@ export default function HomePage() {
           {activeDeliveries.map((activeDelivery) => (
             <div
               key={activeDelivery.id}
-              className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm"
+              className="mb-6 bg-orange-50 border border-orange-200 rounded-lg p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <div className="bg-orange-100 p-2 rounded-full shrink-0">
@@ -201,11 +208,12 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
+
               <button
                 onClick={() =>
                   router.push(`/dashboard/delivery/${activeDelivery.id}`)
                 }
-                className="w-full sm:w-auto bg-orange-700 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer shadow-sm text-sm"
+                className="w-full sm:w-auto bg-orange-700 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer shadow-sm text-sm shrink-0 text-center"
               >
                 Ir al pedido
               </button>

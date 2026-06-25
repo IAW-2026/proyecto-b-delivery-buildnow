@@ -69,6 +69,9 @@ export async function GET(request: Request) {
     if (deliveryId) {
       const delivery = await prisma.delivery.findUnique({
         where: { id: deliveryId },
+        include: {
+          stateHistories: true,
+        },
       });
       if (!delivery) {
         return NextResponse.json(
@@ -82,6 +85,9 @@ export async function GET(request: Request) {
     if (orderId) {
       const delivery = await prisma.delivery.findUnique({
         where: { orderId: orderId },
+        include: {
+          stateHistories: true,
+        },
       });
       if (!delivery) {
         return NextResponse.json(
