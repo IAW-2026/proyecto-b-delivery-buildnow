@@ -112,11 +112,17 @@ export default function AdminDashboardPage() {
       (del) => del.status === "ASSIGNED" || del.status === "ON_THE_WAY",
     ),
   ).length;
-  const completedDeliveries = drivers
+  const totalDeliveries = drivers
     .flatMap((d) => d.deliveries)
     .filter((del) => del.status === "DELIVERED").length;
-  // Mock revenue: Asumimos $2500 por cada envío completado como ejemplo
-  const totalRevenue = completedDeliveries * 2500;
+
+  const completedDeliveries = drivers
+    .flatMap((d) => d.deliveries)
+    .filter((del) => del.status === "DELIVERED");
+  const totalRevenue = completedDeliveries.reduce(
+    (sum, del) => sum + del.amount,
+    0,
+  );
 
   if (!isLoaded || (loading && drivers.length === 0)) {
     return (
@@ -144,7 +150,7 @@ export default function AdminDashboardPage() {
               <MetricasTab
                 totalDrivers={totalDrivers}
                 activeDrivers={activeDrivers}
-                completedDeliveries={completedDeliveries}
+                completedDeliveries={totalDeliveries}
                 totalRevenue={totalRevenue}
               />
 

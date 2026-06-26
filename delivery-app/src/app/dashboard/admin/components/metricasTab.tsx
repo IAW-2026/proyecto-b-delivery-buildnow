@@ -51,7 +51,9 @@ export default function MetricasTab({
           <DollarSign className="h-6 w-6" />
         </div>
         <div>
-          <p className="text-sm font-medium text-slate-500">Ingresos (Aprox)</p>
+          <p className="text-sm font-medium text-slate-500">
+            Pagos a repartidores
+          </p>
           <p className="text-2xl font-bold text-slate-900">
             ${totalRevenue.toLocaleString()}
           </p>
