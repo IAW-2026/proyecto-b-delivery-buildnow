@@ -29,8 +29,11 @@ export default function RepartidoresTab({
           {drivers.map((driver) => {
             const driverCompleted = driver.deliveries.filter(
               (d) => d.status === "DELIVERED",
-            ).length;
-            const driverRevenue = driverCompleted * 2500;
+            );
+            const driverRevenue = driverCompleted.reduce(
+              (sum, del) => sum + del.amount,
+              0,
+            );
             const isDriverActive = driver.deliveries.some(
               (d) => d.status === "ASSIGNED" || d.status === "ON_THE_WAY",
             );
