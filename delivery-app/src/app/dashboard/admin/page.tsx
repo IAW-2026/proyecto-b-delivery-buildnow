@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
     .flatMap((d) => d.deliveries)
     .filter((del) => del.status === "DELIVERED");
   const totalRevenue = completedDeliveries.reduce(
-    (sum, del) => sum + del.amount,
+    (sum, del) => sum + Number(del.amount || 0),
     0,
   );
 

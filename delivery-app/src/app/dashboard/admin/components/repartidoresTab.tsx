@@ -31,7 +31,7 @@ export default function RepartidoresTab({
               (d) => d.status === "DELIVERED",
             );
             const driverRevenue = driverCompleted.reduce(
-              (sum, del) => sum + del.amount,
+              (sum, del) => sum + Number(del.amount || 0),
               0,
             );
             const isDriverActive = driver.deliveries.some(
