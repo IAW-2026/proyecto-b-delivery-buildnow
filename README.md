@@ -17,7 +17,9 @@ Esta app corresponde al rol del repartidor en el proyecto de tipo **B (Delivery)
 - `admin+clerk_test@iaw.com`
 - `delivery1+clerk_test@iaw.com`
 - `delivery2+clerk_test@iaw.com`
-- `delivery3+clerk_test@iaw.com` _(Cuenta sin envios realizados)_
+- `delivery3+clerk_test@iaw.com`
+- `delivery4+clerk_test@iaw.com`
+- `delivery5+clerk_test@iaw.com`
 
 ---
 
